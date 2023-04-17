@@ -53,8 +53,14 @@ jobs:
           platform: ${{ inputs.platform }}
 
       - name: Build image 🛠
-        run: docker build --rm --force-rm --tag ${{ env.OWNER }}/${{ inputs.image }} ${{ inputs.image }}/
+        # run: docker build --rm --force-rm --tag ${{ env.OWNER }}/${{ inputs.image }} ${{ inputs.image }}/
+        run: | 
+          docker buildx build --rm --force-rm \
+          --tag ${{ env.OWNER}}/${{ inputs.image }} ${{ inputs.image }}/ \
+          --cache-from=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache \
+          --cache-to=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache
         env:
+          BUILDX_BUILDER: 1
           DOCKER_BUILDKIT: 1
           # Full logs for CI build
           BUILDKIT_PROGRESS: plain
