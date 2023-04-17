@@ -70,13 +70,15 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: false
+          load: true
           # Push to renci-registry and dockerhub here.
           # cache comes from dockerhub.
           tags: |
             ${{ env.OWNER }}/${{ inputs.image }}
+            ${{ inputs.image }}
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache,mode=max
+          
 
       - name: Run tests ✅
         run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
