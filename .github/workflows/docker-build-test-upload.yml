@@ -55,10 +55,11 @@ jobs:
       - name: Build image 🛠
         # run: docker build --rm --force-rm --tag ${{ env.OWNER }}/${{ inputs.image }} ${{ inputs.image }}/
         run: | 
-          docker buildx build \
-          --tag ${{ env.OWNER}}/${{ inputs.image }} ${{ inputs.image }}/ \
-          --cache-from=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache \
-          --cache-to=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache
+          docker buildx \
+            --cache-from=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache \
+            --cache-to=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache
+            build --tag ${{ env.OWNER}}/${{ inputs.image }} ${{ inputs.image }}/ \
+             
         env:
           BUILDX_BUILDER: 1
           DOCKER_BUILDKIT: 1
