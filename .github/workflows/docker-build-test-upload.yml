@@ -56,8 +56,8 @@ jobs:
         # run: docker build --rm --force-rm --tag ${{ env.OWNER }}/${{ inputs.image }} ${{ inputs.image }}/
         run: | 
           docker buildx \
-            --cache-from=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache \
-            --cache-to=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache
+            --cache-from type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache \
+            --cache-to=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache \
             build --tag ${{ env.OWNER}}/${{ inputs.image }} ${{ inputs.image }}/ \
              
         env:
