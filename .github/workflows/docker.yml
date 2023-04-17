@@ -156,7 +156,8 @@ jobs:
     uses: ./.github/workflows/docker-tag-push.yml
     with:
       platform: x86_64
-      image: ${{ matrix.image }}
+      image: docker-stacks-foundation
+      # image: ${{ matrix.image }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
