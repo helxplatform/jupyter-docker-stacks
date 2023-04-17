@@ -160,23 +160,24 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    # strategy:
-    #   matrix:
-    #     image:
-    #       [
-    #         docker-stacks-foundation,
-    #         base-notebook,
-    #         minimal-notebook,
-    #         scipy-notebook,
-    #       ]
-    # needs:
-    #   [
-    #     x86_64-foundation,
-    #     x86_64-base,
-    #     x86_64-minimal,
-    #     x86_64-scipy,
-    #     x86_64-datascience,
-    #   ]
+    needs: [x86_64-foundation]
+  #   strategy:
+  #     matrix:
+  #       image:
+  #         [
+  #           docker-stacks-foundation,
+  #           base-notebook,
+  #           minimal-notebook,
+  #           scipy-notebook,
+  #         ]
+  #   needs:
+  #     [
+  #       x86_64-foundation,
+  #       x86_64-base,
+  #       x86_64-minimal,
+  #       x86_64-scipy,
+  #       x86_64-datascience,
+  #     ]
 
   # merge-tags:
   #   uses: ./.github/workflows/docker-merge-tags.yml
