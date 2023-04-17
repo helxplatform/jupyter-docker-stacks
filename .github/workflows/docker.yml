@@ -14,7 +14,6 @@ on:
       # - ".github/workflows/docker-merge-tags.yml"
       # - ".github/workflows/docker-tag-push.yml"
 
-
       # We use local composite actions to combine multiple workflow steps within one action
       # https://docs.github.com/en/actions/creating-actions/about-custom-actions#composite-actions
       - ".github/actions/create-dev-env/action.yml"
