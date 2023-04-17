@@ -155,46 +155,46 @@ jobs:
   x86_64-images-tag-push:
     uses: ./.github/workflows/docker-tag-push.yml
     with:
-      platform: x86_64
-      image: ${{ matrix.image }}
+      # platform: x86_64
+      # image: ${{ matrix.image }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    strategy:
-      matrix:
-        image:
-          [
-            docker-stacks-foundation,
-            base-notebook,
-            minimal-notebook,
-            scipy-notebook,
-          ]
-    needs:
-      [
-        x86_64-foundation,
-        x86_64-base,
-        x86_64-minimal,
-        x86_64-scipy,
-        x86_64-datascience,
-      ]
+    # strategy:
+    #   matrix:
+    #     image:
+    #       [
+    #         docker-stacks-foundation,
+    #         base-notebook,
+    #         minimal-notebook,
+    #         scipy-notebook,
+    #       ]
+    # needs:
+    #   [
+    #     x86_64-foundation,
+    #     x86_64-base,
+    #     x86_64-minimal,
+    #     x86_64-scipy,
+    #     x86_64-datascience,
+    #   ]
 
-  merge-tags:
-    uses: ./.github/workflows/docker-merge-tags.yml
-    with:
-      image: ${{ matrix.image }}
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    strategy:
-      matrix:
-        image:
-          [
-            docker-stacks-foundation,
-            base-notebook,
-            minimal-notebook,
-            scipy-notebook,
-            datascience-notebook,
-          ]
-    needs: [x86_64-images-tag-push]
-    if: github.repository == 'helxplatform/jupyter-docker-stacks'
+  # merge-tags:
+  #   uses: ./.github/workflows/docker-merge-tags.yml
+  #   with:
+  #     image: ${{ matrix.image }}
+  #   secrets:
+  #     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  #     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  #   strategy:
+  #     matrix:
+  #       image:
+  #         [
+  #           docker-stacks-foundation,
+  #           base-notebook,
+  #           minimal-notebook,
+  #           scipy-notebook,
+  #           datascience-notebook,
+  #         ]
+  #   needs: [x86_64-images-tag-push]
+  #   if: github.repository == 'helxplatform/jupyter-docker-stacks'
 
