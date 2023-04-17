@@ -52,20 +52,31 @@ jobs:
           image: ${{ inputs.parentImage }}
           platform: ${{ inputs.platform }}
 
-      - name: Build image 🛠
-        # run: docker build --rm --force-rm --tag ${{ env.OWNER }}/${{ inputs.image }} ${{ inputs.image }}/
-        run: | 
-          docker buildx \
-            --cache-from type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache \
-            --cache-to=type=registry, ref=${{ env.OWNER}}/${{ inputs.image }}:buildcache \
-            build --tag ${{ env.OWNER}}/${{ inputs.image }} ${{ inputs.image }}/ \
-             
-        env:
-          BUILDX_BUILDER: 1
-          DOCKER_BUILDKIT: 1
-          # Full logs for CI build
-          BUILDKIT_PROGRESS: plain
-        shell: bash
+      # - name: Build image 🛠
+      #   # run: docker build --rm --force-rm --tag ${{ env.OWNER }}/${{ inputs.image }} ${{ inputs.image }}/
+      #   env:
+      #     BUILDX_BUILDER: 1
+      #     DOCKER_BUILDKIT: 1
+      #     # Full logs for CI build
+      #     BUILDKIT_PROGRESS: plain
+      #   shell: bash
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: |
+            network=host
+
+      - name: Build Push Container
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          # Push to renci-registry and dockerhub here.
+          # cache comes from dockerhub.
+          tags: |
+            ${{ env.OWNER }}/${{ inputs.image }}
+          cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache
+          cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache,mode=max
 
       - name: Run tests ✅
         run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
