@@ -84,6 +84,7 @@ jobs:
           name: ${{ inputs.image }}-${{ inputs.platform }}-manifest
           path: /tmp/manifests/${{ inputs.platform }}-${{ inputs.image }}-*.md
           retention-days: 3
+          
       - name: Upload build history line 💾
         uses: actions/upload-artifact@v3
         with:
