@@ -79,33 +79,33 @@ jobs:
       platform: x86_64
       runsOn: ubuntu-latest
 
-  # x86_64-base:
-  #   uses: ./.github/workflows/docker-build-test-upload.yml
-  #   with:
-  #     parentImage: docker-stacks-foundation
-  #     image: base-notebook
-  #     platform: x86_64
-  #     runsOn: ubuntu-latest
-  #   needs: [x86_64-foundation]
+  x86_64-base:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parentImage: docker-stacks-foundation
+      image: base-notebook
+      platform: x86_64
+      runsOn: ubuntu-latest
+    needs: [x86_64-foundation]
 
-  # x86_64-minimal:
-  #   uses: ./.github/workflows/docker-build-test-upload.yml
-  #   with:
-  #     parentImage: base-notebook
-  #     image: minimal-notebook
-  #     platform: x86_64
-  #     runsOn: ubuntu-latest
-  #   needs: [x86_64-base]
+  x86_64-minimal:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parentImage: base-notebook
+      image: minimal-notebook
+      platform: x86_64
+      runsOn: ubuntu-latest
+    needs: [x86_64-base]
 
 
-  # x86_64-scipy:
-  #   uses: ./.github/workflows/docker-build-test-upload.yml
-  #   with:
-  #     parentImage: minimal-notebook
-  #     image: scipy-notebook
-  #     platform: x86_64
-  #     runsOn: ubuntu-latest
-  #   needs: [x86_64-minimal]
+  x86_64-scipy:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parentImage: minimal-notebook
+      image: scipy-notebook
+      platform: x86_64
+      runsOn: ubuntu-latest
+    needs: [x86_64-minimal]
 
   # # x86_64-r:
   # #   uses: ./.github/workflows/docker-build-test-upload.yml
@@ -125,14 +125,14 @@ jobs:
   # #     runsOn: ubuntu-latest
   # #   needs: [x86_64-scipy]
 
-  # x86_64-datascience:
-  #   uses: ./.github/workflows/docker-build-test-upload.yml
-  #   with:
-  #     parentImage: scipy-notebook
-  #     image: datascience-notebook
-  #     platform: x86_64
-  #     runsOn: ubuntu-latest
-  #   needs: [x86_64-scipy]
+  x86_64-datascience:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parentImage: scipy-notebook
+      image: datascience-notebook
+      platform: x86_64
+      runsOn: ubuntu-latest
+    needs: [x86_64-scipy]
 
   # # x86_64-pyspark:
   # #   uses: ./.github/workflows/docker-build-test-upload.yml
@@ -156,47 +156,45 @@ jobs:
     uses: ./.github/workflows/docker-tag-push.yml
     with:
       platform: x86_64
-      image: docker-stacks-foundation
-      # image: ${{ matrix.image }}
+      image: ${{ matrix.image }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    needs: [x86_64-foundation]
-  #   strategy:
-  #     matrix:
-  #       image:
-  #         [
-  #           docker-stacks-foundation,
-  #           base-notebook,
-  #           minimal-notebook,
-  #           scipy-notebook,
-  #         ]
-  #   needs:
-  #     [
-  #       x86_64-foundation,
-  #       x86_64-base,
-  #       x86_64-minimal,
-  #       x86_64-scipy,
-  #       x86_64-datascience,
-  #     ]
+    strategy:
+      matrix:
+        image:
+          [
+            docker-stacks-foundation,
+            base-notebook,
+            minimal-notebook,
+            scipy-notebook,
+          ]
+    needs:
+      [
+        x86_64-foundation,
+        x86_64-base,
+        x86_64-minimal,
+        x86_64-scipy,
+        x86_64-datascience,
+      ]
 
-  # merge-tags:
-  #   uses: ./.github/workflows/docker-merge-tags.yml
-  #   with:
-  #     image: ${{ matrix.image }}
-  #   secrets:
-  #     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  #     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-  #   strategy:
-  #     matrix:
-  #       image:
-  #         [
-  #           docker-stacks-foundation,
-  #           base-notebook,
-  #           minimal-notebook,
-  #           scipy-notebook,
-  #           datascience-notebook,
-  #         ]
-  #   needs: [x86_64-images-tag-push]
-  #   if: github.repository == 'helxplatform/jupyter-docker-stacks'
+  merge-tags:
+    uses: ./.github/workflows/docker-merge-tags.yml
+    with:
+      image: ${{ matrix.image }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    strategy:
+      matrix:
+        image:
+          [
+            docker-stacks-foundation,
+            base-notebook,
+            minimal-notebook,
+            scipy-notebook,
+            datascience-notebook,
+          ]
+    needs: [x86_64-images-tag-push]
+    if: github.repository == 'helxplatform/jupyter-docker-stacks'
 
