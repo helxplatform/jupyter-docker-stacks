@@ -23,13 +23,13 @@ on:
 
       # - "all-spark-notebook/**"
       - "base-notebook/**"
-      # - "datascience-notebook/**"
-      # - "docker-stacks-foundation/**"
-      # - "minimal-notebook/**"
-      # # - "pyspark-notebook/**"
-      # # - "r-notebook/**"
-      # - "scipy-notebook/**"
-      # # - "tensorflow-notebook/**"
+      - "datascience-notebook/**"
+      - "docker-stacks-foundation/**"
+      - "minimal-notebook/**"
+      # - "pyspark-notebook/**"
+      # - "r-notebook/**"
+      - "scipy-notebook/**"
+      # - "tensorflow-notebook/**"
 
       - "tagging/**"
       - "tests/**"
@@ -79,78 +79,78 @@ jobs:
       platform: x86_64
       runsOn: ubuntu-latest
 
-  x86_64-base:
-    uses: ./.github/workflows/docker-build-test-upload.yml
-    with:
-      parentImage: docker-stacks-foundation
-      image: base-notebook
-      platform: x86_64
-      runsOn: ubuntu-latest
-    needs: [x86_64-foundation]
+  # x86_64-base:
+  #   uses: ./.github/workflows/docker-build-test-upload.yml
+  #   with:
+  #     parentImage: docker-stacks-foundation
+  #     image: base-notebook
+  #     platform: x86_64
+  #     runsOn: ubuntu-latest
+  #   needs: [x86_64-foundation]
 
-  x86_64-minimal:
-    uses: ./.github/workflows/docker-build-test-upload.yml
-    with:
-      parentImage: base-notebook
-      image: minimal-notebook
-      platform: x86_64
-      runsOn: ubuntu-latest
-    needs: [x86_64-base]
+  # x86_64-minimal:
+  #   uses: ./.github/workflows/docker-build-test-upload.yml
+  #   with:
+  #     parentImage: base-notebook
+  #     image: minimal-notebook
+  #     platform: x86_64
+  #     runsOn: ubuntu-latest
+  #   needs: [x86_64-base]
 
 
-  x86_64-scipy:
-    uses: ./.github/workflows/docker-build-test-upload.yml
-    with:
-      parentImage: minimal-notebook
-      image: scipy-notebook
-      platform: x86_64
-      runsOn: ubuntu-latest
-    needs: [x86_64-minimal]
-
-  # x86_64-r:
+  # x86_64-scipy:
   #   uses: ./.github/workflows/docker-build-test-upload.yml
   #   with:
   #     parentImage: minimal-notebook
-  #     image: r-notebook
+  #     image: scipy-notebook
   #     platform: x86_64
   #     runsOn: ubuntu-latest
   #   needs: [x86_64-minimal]
 
-  # x86_64-tensorflow:
+  # # x86_64-r:
+  # #   uses: ./.github/workflows/docker-build-test-upload.yml
+  # #   with:
+  # #     parentImage: minimal-notebook
+  # #     image: r-notebook
+  # #     platform: x86_64
+  # #     runsOn: ubuntu-latest
+  # #   needs: [x86_64-minimal]
+
+  # # x86_64-tensorflow:
+  # #   uses: ./.github/workflows/docker-build-test-upload.yml
+  # #   with:
+  # #     parentImage: scipy-notebook
+  # #     image: tensorflow-notebook
+  # #     platform: x86_64
+  # #     runsOn: ubuntu-latest
+  # #   needs: [x86_64-scipy]
+
+  # x86_64-datascience:
   #   uses: ./.github/workflows/docker-build-test-upload.yml
   #   with:
   #     parentImage: scipy-notebook
-  #     image: tensorflow-notebook
+  #     image: datascience-notebook
   #     platform: x86_64
   #     runsOn: ubuntu-latest
   #   needs: [x86_64-scipy]
 
-  x86_64-datascience:
-    uses: ./.github/workflows/docker-build-test-upload.yml
-    with:
-      parentImage: scipy-notebook
-      image: datascience-notebook
-      platform: x86_64
-      runsOn: ubuntu-latest
-    needs: [x86_64-scipy]
+  # # x86_64-pyspark:
+  # #   uses: ./.github/workflows/docker-build-test-upload.yml
+  # #   with:
+  # #     parentImage: scipy-notebook
+  # #     image: pyspark-notebook
+  # #     platform: x86_64
+  # #     runsOn: ubuntu-latest
+  # #   needs: [x86_64-scipy]
 
-  # x86_64-pyspark:
-  #   uses: ./.github/workflows/docker-build-test-upload.yml
-  #   with:
-  #     parentImage: scipy-notebook
-  #     image: pyspark-notebook
-  #     platform: x86_64
-  #     runsOn: ubuntu-latest
-  #   needs: [x86_64-scipy]
-
-  # x86_64-all-spark:
-  #   uses: ./.github/workflows/docker-build-test-upload.yml
-  #   with:
-  #     parentImage: pyspark-notebook
-  #     image: all-spark-notebook
-  #     platform: x86_64
-  #     runsOn: ubuntu-latest
-  #   needs: [x86_64-pyspark]
+  # # x86_64-all-spark:
+  # #   uses: ./.github/workflows/docker-build-test-upload.yml
+  # #   with:
+  # #     parentImage: pyspark-notebook
+  # #     image: all-spark-notebook
+  # #     platform: x86_64
+  # #     runsOn: ubuntu-latest
+  # #   needs: [x86_64-pyspark]
 
   x86_64-images-tag-push:
     uses: ./.github/workflows/docker-tag-push.yml
