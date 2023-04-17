@@ -37,6 +37,7 @@ on:
   push:
     branches:
       - main
+      - develop
     paths:
       - ".github/workflows/docker.yml"
       - ".github/workflows/docker-build-test-upload.yml"
@@ -87,7 +88,6 @@ jobs:
       runsOn: ubuntu-latest
     needs: [x86_64-foundation]
 
-
   x86_64-minimal:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
@@ -124,16 +124,6 @@ jobs:
   #     platform: x86_64
   #     runsOn: ubuntu-latest
   #   needs: [x86_64-scipy]
-
-  aarch64-datascience:
-    uses: ./.github/workflows/docker-build-test-upload.yml
-    with:
-      parentImage: scipy-notebook
-      image: datascience-notebook
-      platform: aarch64
-      runsOn: ARM64
-    needs: [aarch64-scipy]
-    if: github.repository == 'jupyter/docker-stacks'
 
   x86_64-datascience:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -205,6 +195,6 @@ jobs:
             scipy-notebook,
             datascience-notebook,
           ]
-    needs: [aarch64-images-tag-push, x86_64-images-tag-push]
+    needs: [x86_64-images-tag-push]
     if: github.repository == 'helxplatform/jupyter-docker-stacks'
 
