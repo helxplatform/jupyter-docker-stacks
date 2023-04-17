@@ -154,9 +154,9 @@ jobs:
 
   x86_64-images-tag-push:
     uses: ./.github/workflows/docker-tag-push.yml
-    with:
-      # platform: x86_64
-      # image: ${{ matrix.image }}
+    # with:
+    #   # platform: x86_64
+    #   # image: ${{ matrix.image }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
