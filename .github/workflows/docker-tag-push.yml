@@ -19,9 +19,9 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
-      CONTAINERS_USERNAME:
+      CONTAINERHUB_USERNAME:
         required: true
-      CONTAINERS_TOKEN: 
+      CONTAINERHUB_TOKEN: 
         required: true
 
 jobs:
@@ -52,8 +52,8 @@ jobs:
       - name: Login to Containers 🔐
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
         with:
-          username: ${{ secrets.CONTAINERS_USERNAME }}
-          password: ${{ secrets.CONTAINERS_TOKEN }}
+          username: ${{ secrets.CONTAINERHUB_USERNAME }}
+          password: ${{ secrets.CONTAINERHUB_TOKEN }}
           logout: true
 
       - name: Download tags file 📥
