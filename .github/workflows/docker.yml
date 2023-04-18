@@ -88,6 +88,9 @@ jobs:
       image: base-notebook
       platform: x86_64
       runsOn: ubuntu-latest
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     needs: [x86_64-foundation]
 
   x86_64-minimal:
@@ -97,6 +100,9 @@ jobs:
       image: minimal-notebook
       platform: x86_64
       runsOn: ubuntu-latest
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     needs: [x86_64-base]
 
 
@@ -107,6 +113,9 @@ jobs:
       image: scipy-notebook
       platform: x86_64
       runsOn: ubuntu-latest
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     needs: [x86_64-minimal]
 
   # # x86_64-r:
@@ -134,6 +143,9 @@ jobs:
       image: datascience-notebook
       platform: x86_64
       runsOn: ubuntu-latest
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     needs: [x86_64-scipy]
 
   # # x86_64-pyspark:
