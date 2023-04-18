@@ -75,7 +75,7 @@ jobs:
       #   shell: bash
 
       - name: Build Containers
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.image }}/
