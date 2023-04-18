@@ -75,7 +75,7 @@ jobs:
       #   shell: bash
 
       - name: Build Containers
-        if: github.refs == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.image }}/
@@ -89,7 +89,7 @@ jobs:
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache,mode=max
 
       - name: Build Containers
-        if: github.refs == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/develop'
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.image }}/
