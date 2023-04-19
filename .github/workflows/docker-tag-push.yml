@@ -52,6 +52,7 @@ jobs:
       - name: Login to Containers 🔐
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
         with:
+          registry: containers.renci.org
           username: ${{ secrets.CONTAINERHUB_USERNAME }}
           password: ${{ secrets.CONTAINERHUB_TOKEN }}
           logout: true
