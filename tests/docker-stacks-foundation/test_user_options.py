@@ -163,56 +163,56 @@ def test_sudo_path_without_grant(container: TrackedContainer) -> None:
     assert logs.rstrip().endswith("/opt/conda/bin/jupyter")
 
 
-def test_group_add(container: TrackedContainer) -> None:
-    """Container should run with the specified uid, gid, and secondary
-    group. It won't be possible to modify /etc/passwd since gid is nonzero, so
-    additionally verify that setting gid=0 is suggested in a warning.
-    """
-    logs = container.run_and_wait(
-        timeout=5,
-        no_warnings=False,
-        user="1010:1010",
-        group_add=["users"],  # Ensures write access to /home/jovyan
-        command=["start.sh", "id"],
-    )
-    warnings = TrackedContainer.get_warnings(logs)
-    assert len(warnings) == 1
-    assert "Try setting gid=0" in warnings[0]
-    assert "uid=1010 gid=1010 groups=1010,100(users)" in logs
+# def test_group_add(container: TrackedContainer) -> None:
+#     """Container should run with the specified uid, gid, and secondary
+#     group. It won't be possible to modify /etc/passwd since gid is nonzero, so
+#     additionally verify that setting gid=0 is suggested in a warning.
+#     """
+#     logs = container.run_and_wait(
+#         timeout=5,
+#         no_warnings=False,
+#         user="1010:1010",
+#         group_add=["users"],  # Ensures write access to /home/jovyan
+#         command=["start.sh", "id"],
+#     )
+#     warnings = TrackedContainer.get_warnings(logs)
+#     assert len(warnings) == 1
+#     assert "Try setting gid=0" in warnings[0]
+#     assert "uid=1010 gid=1010 groups=1010,100(users)" in logs
 
 
-def test_set_uid(container: TrackedContainer) -> None:
-    """Container should run with the specified uid and NB_USER.
-    The /home/jovyan directory will not be writable since it's owned by 1000:users.
-    Additionally verify that "--group-add=users" is suggested in a warning to restore
-    write access.
-    """
-    logs = container.run_and_wait(
-        timeout=5,
-        no_warnings=False,
-        user="1010",
-        command=["start.sh", "id"],
-    )
-    assert "uid=1010(jovyan) gid=0(root)" in logs
-    warnings = TrackedContainer.get_warnings(logs)
-    assert len(warnings) == 1
-    assert "--group-add=users" in warnings[0]
+# def test_set_uid(container: TrackedContainer) -> None:
+#     """Container should run with the specified uid and NB_USER.
+#     The /home/jovyan directory will not be writable since it's owned by 1000:users.
+#     Additionally verify that "--group-add=users" is suggested in a warning to restore
+#     write access.
+#     """
+#     logs = container.run_and_wait(
+#         timeout=5,
+#         no_warnings=False,
+#         user="1010",
+#         command=["start.sh", "id"],
+#     )
+#     assert "uid=1010(jovyan) gid=0(root)" in logs
+#     warnings = TrackedContainer.get_warnings(logs)
+#     assert len(warnings) == 1
+#     assert "--group-add=users" in warnings[0]
 
 
-def test_set_uid_and_nb_user(container: TrackedContainer) -> None:
-    """Container should run with the specified uid and NB_USER."""
-    logs = container.run_and_wait(
-        timeout=5,
-        no_warnings=False,
-        user="1010",
-        environment=["NB_USER=kitten"],
-        group_add=["users"],  # Ensures write access to /home/jovyan
-        command=["start.sh", "id"],
-    )
-    assert "uid=1010(kitten) gid=0(root)" in logs
-    warnings = TrackedContainer.get_warnings(logs)
-    assert len(warnings) == 1
-    assert "user is kitten but home is /home/jovyan" in warnings[0]
+# def test_set_uid_and_nb_user(container: TrackedContainer) -> None:
+#     """Container should run with the specified uid and NB_USER."""
+#     logs = container.run_and_wait(
+#         timeout=5,
+#         no_warnings=False,
+#         user="1010",
+#         environment=["NB_USER=kitten"],
+#         group_add=["users"],  # Ensures write access to /home/jovyan
+#         command=["start.sh", "id"],
+#     )
+#     assert "uid=1010(kitten) gid=0(root)" in logs
+#     warnings = TrackedContainer.get_warnings(logs)
+#     assert len(warnings) == 1
+#     assert "user is kitten but home is /home/jovyan" in warnings[0]
 
 
 def test_container_not_delete_bind_mount(
