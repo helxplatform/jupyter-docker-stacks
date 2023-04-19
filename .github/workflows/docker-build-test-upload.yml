@@ -83,14 +83,14 @@ jobs:
           load: true
           build-args: |
             NB_GID=0 
-            
-
           # Push to renci-registry and dockerhub here.
           # cache comes from dockerhub.
           tags: |
             ${{ env.OWNER }}/${{ inputs.image }}
+            containers.renci.org/${{ env.OWNER }}/${{ inputs.image }}
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
+
       # Currently this breaks the tests. Need to understand more 
       # in order to have both :dev tags and main images.
       #
