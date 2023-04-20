@@ -146,9 +146,20 @@ jobs:
       - name: Push to Docker 🛠️
         run: |
           docker push --all-tags ${{ env.OWNER }}/${{ inputs.image }}
+
+      # Because Containers often fails, we keep going and display a message.
       - name: Push to Containers 🫙
         run: |
           docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+        continue-on-error: true
+
+      - name: If Containers Failed
+        if: ${{ failure() }}
+        run: |
+          echo "Last push failed retrying "
+          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+          echo "Completed!"
+        continue-on-error: true
       #   uses: docker/build-push-action@v4
       #   with:
       #     context: ${{ inputs.image }}/
