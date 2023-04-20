@@ -35,11 +35,11 @@ on:
 jobs:
   build-test-upload:
     runs-on: ${{ inputs.runsOn }}
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+    # services:
+    #   registry:
+    #     image: registry:2
+    #     ports:
+    #       - 5000:5000
 
     steps:
       - name: Checkout Repo ⚡️
@@ -65,6 +65,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         with:
+          driver: docker
           driver-opts: |
             network=host
       -
@@ -117,7 +118,7 @@ jobs:
           build-args: |
             NB_GID=0 
           # Push to renci-registry and dockerhub here.
-          tags: localhost:5000/${{ inputs.image }} 
+          tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
@@ -126,25 +127,27 @@ jobs:
       #   shell: bash
 
         
-      # - name: Upload artifact 📤
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ${{ inputs.image }}
-      #     path: /tmp/${{ inputs.image }}.tar
+      - name: Upload artifact 📤
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.image }}
+          path: /tmp/${{ inputs.image }}.tar
 
       # This will not build twice only pushes the previously built images.
       - name: Push Containers 🛠️
-        uses: docker/build-push-action@v4
-        with:
-          context: ${{ inputs.image }}/
-          push: true
-          # Push to renci-registry and dockerhub here.
-          tags: ${{ steps.meta.outputs.tags }}
-          build-args: |
-            BASE_IMAGE=localhost:5000/${{ inputs.image }}
-          # output image tags to tar file.
-          # cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
-          # cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
+        run: |
+          docker push --all-tags ${{ env.OWNER }}/${{ inputs.image }}
+        # uses: docker/build-push-action@v4
+        # with:
+        #   context: ${{ inputs.image }}/
+        #   push: true
+        #   # Push to renci-registry and dockerhub here.
+        #   tags: ${{ steps.meta.outputs.tags }}
+        #   build-args: |
+        #     BASE_IMAGE=localhost:5000/${{ inputs.image }}
+        #   # output image tags to tar file.
+        #   cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
+        #   cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
       # - name: Write tags file 🏷
       #   run: |
