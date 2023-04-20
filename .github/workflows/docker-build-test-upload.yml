@@ -35,6 +35,11 @@ on:
 jobs:
   build-test-upload:
     runs-on: ${{ inputs.runsOn }}
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
 
     steps:
       - name: Checkout Repo ⚡️
@@ -108,15 +113,11 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.image }}/
-          push: false 
-          # load: true
+          push: true
           build-args: |
             NB_GID=0 
           # Push to renci-registry and dockerhub here.
-          tags: ${{ env.OWNER }}/${{ inputs.image }}
-          # output image tags to tar file.
-          outputs: |
-            type=docker, dest=/tmp/
+          tags: localhost:5000/${{ inputs.image }} 
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
@@ -139,6 +140,8 @@ jobs:
           push: true
           # Push to renci-registry and dockerhub here.
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            IMAGE=localhost:5000/${{ inputs.image }}
           # output image tags to tar file.
           # cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           # cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
