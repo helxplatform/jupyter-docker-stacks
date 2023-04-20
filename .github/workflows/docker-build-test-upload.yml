@@ -115,8 +115,8 @@ jobs:
           # Push to renci-registry and dockerhub here.
           tags: ${{ env.OWNER }}/${{ inputs.image }}
           # output image tags to tar file.
-          outputs: |
-            type=docker, dest=/tmp/${{ inputs.image }}.tar
+          # outputs: |
+          #   type=docker, dest=/tmp/${{ inputs.image }}.tar
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
@@ -125,11 +125,11 @@ jobs:
       #   shell: bash
 
         
-      - name: Upload artifact 📤
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.image }}
-          path: /tmp/${{ inputs.image }}.tar
+      # - name: Upload artifact 📤
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ inputs.image }}
+      #     path: /tmp/${{ inputs.image }}.tar
 
       # This will not build twice only pushes the previously built images.
       - name: Push Containers 🛠️
