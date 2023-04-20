@@ -115,7 +115,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.image }}/
-          load: true
+          # load: true
           push: true
           build-args: |
             NB_GID=0 
