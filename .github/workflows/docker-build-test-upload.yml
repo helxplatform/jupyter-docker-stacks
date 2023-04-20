@@ -74,7 +74,7 @@ jobs:
         if: ${{ inputs.parentImage != '' }}
         uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.image }}
+          name: ${{ inputs.parentImage }}
           path: /tmp/${{ inputs.parentImage }}.tar
 
       - name: Load parent built image to Docker 🐳
@@ -115,7 +115,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.image }}/
-          load: true
           push: false
           build-args: |
             NB_GID=0 
@@ -136,6 +135,10 @@ jobs:
       #     name: ${{ inputs.image }}
       #     path: /tmp/${{ inputs.image }}.tar
 
+      - name: Load tested image to docker 
+        run: |
+          docker load --input /tmp/${{ inputs.image }}.tar
+
       - name: Verify image 
         run: |
           docker image ls -a 
@@ -148,7 +151,7 @@ jobs:
           # Push to renci-registry and dockerhub here.
           tags: ${{ steps.meta.outputs.tags }}
           # output image tags to tar file.
-          cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
+          # cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           # cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
       # - name: Write tags file 🏷
