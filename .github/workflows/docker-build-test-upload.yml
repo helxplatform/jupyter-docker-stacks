@@ -131,13 +131,13 @@ jobs:
       - name: Push Containers 🛠️
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ${{ inputs.image }}/
           push: true
           # Push to renci-registry and dockerhub here.
           tags: ${{ steps.meta.outputs.tags }}
           # output image tags to tar file.
-          cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
-          cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
+          # cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
+          # cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
       # - name: Write tags file 🏷
       #   run: |
