@@ -75,7 +75,6 @@ jobs:
     with:
       parentImage: ""
       image: docker-stacks-foundation
-
       runsOn: ubuntu-latest
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -88,7 +87,6 @@ jobs:
     with:
       parentImage: docker-stacks-foundation
       image: base-notebook
-
       runsOn: ubuntu-latest
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -102,7 +100,6 @@ jobs:
     with:
       parentImage: base-notebook
       image: minimal-notebook
-
       runsOn: ubuntu-latest
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -117,7 +114,6 @@ jobs:
     with:
       parentImage: minimal-notebook
       image: scipy-notebook
-
       runsOn: ubuntu-latest
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -149,7 +145,6 @@ jobs:
     with:
       parentImage: scipy-notebook
       image: datascience-notebook
-
       runsOn: ubuntu-latest
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}

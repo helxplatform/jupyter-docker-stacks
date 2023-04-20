@@ -129,11 +129,11 @@ jobs:
       #   shell: bash
 
         
-      # - name: Upload artifact 📤
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ${{ inputs.image }}
-      #     path: /tmp/${{ inputs.image }}.tar
+      - name: Upload artifact 📤
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.image }}
+          path: /tmp/${{ inputs.image }}.tar
 
       - name: Load tested image to docker 
         run: |
@@ -150,8 +150,7 @@ jobs:
           push: true
           # Push to renci-registry and dockerhub here.
           tags: ${{ steps.meta.outputs.tags }}
-          # output image tags to tar file.
-          # cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
+          cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           # cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
       # - name: Write tags file 🏷
