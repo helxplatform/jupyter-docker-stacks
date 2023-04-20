@@ -113,11 +113,10 @@ jobs:
           build-args: |
             NB_GID=0 
           # Push to renci-registry and dockerhub here.
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ env.OWNER }}/${{ inputs.image }}
           # output image tags to tar file.
           outputs: |
             type=docker, dest=/tmp/${{ inputs.image }}.tar
-            type=image, dest=/tmp/images/
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
@@ -136,7 +135,7 @@ jobs:
       - name: Push Containers 🛠️
         uses: docker/build-push-action@v4
         with:
-          context: /tmp/images
+          context: /tmp/{{ inputs.image }}.tar
           push: true
           # Push to renci-registry and dockerhub here.
           tags: ${{ steps.meta.outputs.tags }}
