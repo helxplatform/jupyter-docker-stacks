@@ -136,7 +136,7 @@ jobs:
       - name: Push Containers 🛠️
         uses: docker/build-push-action@v4
         with:
-          context: /tmp
+          context: .
           push: true
           # Push to renci-registry and dockerhub here.
           tags: ${{ steps.meta.outputs.tags }}
