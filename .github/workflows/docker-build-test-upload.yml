@@ -27,6 +27,10 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
+      CONTAINERHUB_USERNAME:
+        required: true
+      CONTAINERHUB_TOKEN:
+        required: true
 
 jobs:
   build-test-upload:
@@ -75,7 +79,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           logout: true
 
-      - name: Login to Containers 🔐
+      - name: Login to Containers 🫙
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
         with:
           registry: containers.renci.org
@@ -123,6 +127,7 @@ jobs:
           name: ${{ inputs.image }}
           path: /tmp/${{ inputs.image }}.tar
 
+      # This will not build twice only pushes the previously built images.
       - name: Push Containers 🛠️
         uses: docker/build-push-action@v4
         with:

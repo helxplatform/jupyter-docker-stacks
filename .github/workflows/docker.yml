@@ -80,6 +80,8 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
 
   base:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -91,6 +93,8 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
     needs: [foundation]
 
   minimal:
@@ -103,6 +107,8 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}      
     needs: [base]
 
 
@@ -116,6 +122,8 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
     needs: [minimal]
 
   # # x86_64-r:
@@ -146,6 +154,8 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
     needs: [scipy]
 
   # # x86_64-pyspark:
