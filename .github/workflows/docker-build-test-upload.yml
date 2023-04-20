@@ -14,10 +14,10 @@ on:
         description: Image name
         required: true
         type: string
-      platform:
-        description: Image platform
-        required: true
-        type: string
+      # platform:
+      #   description: Image platform
+      #   required: true
+      #   type: string
       runsOn:
         description: GitHub Actions Runner image
         required: true
@@ -35,47 +35,69 @@ jobs:
     steps:
       - name: Checkout Repo ⚡️
         uses: actions/checkout@v3
-      - name: Create dev environment 📦
-        uses: ./.github/actions/create-dev-env
-        with:
-          platform: ${{ inputs.platform }}
 
-      # Self-hosted runners share a state (whole VM) between runs
-      - name: Reset docker state and cleanup artifacts 🗑️
-        if: ${{ inputs.platform != 'x86_64' }}
+      - name: Set Up Python 🐍
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - uses: actions/cache@v3
+        name: Cache Python
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
+
+      - name: Install Dev Dependencies 📦
         run: |
-          docker system prune --all --force
-          rm -rf /tmp/tags/
-          rm -rf /tmp/hist_lines/
-          rm -rf /tmp/manifests/
+          pip install --upgrade pip
+          pip install --upgrade -r requirements-dev.txt
         shell: bash
 
-      - name: Load parent built image to Docker 📥
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Download artifact 📥
         if: ${{ inputs.parentImage != '' }}
-        uses: ./.github/actions/load-image
+        uses: actions/download-artifact@v3
         with:
-          image: ${{ inputs.parentImage }}
-          platform: ${{ inputs.platform }}
+          name: ${{ inputs.image }}
+          path: /tmp/${{ inputs.parentImage }}.tar
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
+      - name: Load parent built image to Docker 🐳
+        if: ${{ inputs.parentImage != '' }}
+        run: |
+          docker load --input /tmp/${{ inputs.parentImage }}.tar
+
+      - name: Login to Docker Hub 🔐
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+          logout: true
 
-      # - name: Build main image 🛠
-      #   run: docker build --rm --force-rm --tag ${{ env.OWNER }}/${{ inputs.image }} ${{ inputs.image }}/
-      #   env:
-      #     DOCKER_BUILDKIT: 1
-      #     # Full logs for CI build
-      #     BUILDKIT_PROGRESS: plain
-      #   shell: bash
+      - name: Login to Containers 🔐
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+        with:
+          registry: containers.renci.org
+          username: ${{ secrets.CONTAINERHUB_USERNAME }}
+          password: ${{ secrets.CONTAINERHUB_TOKEN }}
+          logout: true
 
-      - name: Build Containers
-        # if: github.ref == 'refs/heads/main'
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            ${{ env.OWNER }}/${{ inputs.image }}
+            containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha
+
+      - name: Build Containers 🛠️
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.image }}/
@@ -84,78 +106,78 @@ jobs:
           build-args: |
             NB_GID=0 
           # Push to renci-registry and dockerhub here.
-          # cache comes from dockerhub.
-          tags: |
-            ${{ env.OWNER }}/${{ inputs.image }}
-            containers.renci.org/${{ env.OWNER }}/${{ inputs.image }}
+          tags: ${{ steps.meta.outputs.tags }}
+          # output image tags to tar file.
+          outputs: type=docker, dest=/tmp/${{ inputs.image }}.tar
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
-
-      # Currently this breaks the tests. Need to understand more 
-      # in order to have both :dev tags and main images.
-      #
-      # - name: Build Containers
-      #   if: github.ref == 'refs/heads/develop'
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: ${{ inputs.image }}/
-      #     push: false 
-      #     load: true
-      #     # Push to renci-registry and dockerhub here.
-      #     # cache comes from dockerhub.
-      #     tags: |
-      #       ${{ env.OWNER }}/${{ inputs.image }}:dev
-      #     cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache
-      #     cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache,mode=max
 
       - name: Run tests ✅
         run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
         shell: bash
 
-      - name: Write tags file 🏷
-        run: |
-          python3 -m tagging.write_tags_file --short-image-name ${{ inputs.image }} --tags-dir /tmp/tags/ --owner ${{ env.OWNER }}
-        shell: bash
-
-      - name: Upload tags file 💾
+        
+      - name: Upload artifact 📤
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.image }}-${{ inputs.platform }}-tags
-          path: /tmp/tags/${{ inputs.platform }}-${{ inputs.image }}.txt
-          retention-days: 3
+          name: ${{ inputs.image }}
+          path: /tmp/${{ inputs.image }}.tar
 
-      - name: Write manifest and build history file 🏷
-        run: python3 -m tagging.write_manifest --short-image-name ${{ inputs.image }} --hist-line-dir /tmp/hist_lines/ --manifest-dir /tmp/manifests/ --owner ${{ env.OWNER }}
-        shell: bash
-
-      - name: Upload manifest file 💾
-        uses: actions/upload-artifact@v3
+      - name: Push Containers 🛠️
+        uses: docker/build-push-action@v4
         with:
-          name: ${{ inputs.image }}-${{ inputs.platform }}-manifest
-          path: /tmp/manifests/${{ inputs.platform }}-${{ inputs.image }}-*.md
-          retention-days: 3
+          context: .
+          push: true
+          # Push to renci-registry and dockerhub here.
+          tags: ${{ steps.meta.outputs.tags }}
+          # output image tags to tar file.
+          cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
+          cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
+
+      # - name: Write tags file 🏷
+      #   run: |
+      #     python3 -m tagging.write_tags_file --short-image-name ${{ inputs.image }} --tags-dir /tmp/tags/ --owner ${{ env.OWNER }}
+      #   shell: bash
+
+      # - name: Upload tags file 💾
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ env.OWNER }}/${{ inputs.image }}
+      #     path: /tmp/tags/${{ env.OWNER }}/${{ inputs.image }}.tar
+      #     retention-days: 3
+
+      # - name: Write manifest and build history file 🏷
+      #   run: python3 -m tagging.write_manifest --short-image-name ${{ inputs.image }} --hist-line-dir /tmp/hist_lines/ --manifest-dir /tmp/manifests/ --owner ${{ env.OWNER }}
+      #   shell: bash
+
+      # - name: Upload manifest file 💾
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ inputs.image }}-${{ inputs.platform }}-manifest
+      #     path: /tmp/manifests/${{ inputs.platform }}-${{ inputs.image }}-*.md
+      #     retention-days: 3
           
-      - name: Upload build history line 💾
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.image }}-${{ inputs.platform }}-history_line
-          path: /tmp/hist_lines/${{ inputs.platform }}-${{ inputs.image }}-*.txt
-          retention-days: 3
+      # - name: Upload build history line 💾
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ inputs.image }}-${{ inputs.platform }}-history_line
+      #     path: /tmp/hist_lines/${{ inputs.platform }}-${{ inputs.image }}-*.txt
+      #     retention-days: 3
 
-      - name: Save image as a tar for later use 💾
-        run: docker save ${{ env.OWNER }}/${{ inputs.image }} -o /tmp/${{ inputs.image }}-${{ inputs.platform }}.tar
-        shell: bash
+      # - name: Save image as a tar for later use 💾
+      #   run: docker save ${{ env.OWNER }}/${{ inputs.image }} -o /tmp/${{ inputs.image }}-${{ inputs.platform }}.tar
+      #   shell: bash
 
-      - name: Upload image as artifact 💾
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.image }}-${{ inputs.platform }}
-          path: /tmp/${{ inputs.image }}-${{ inputs.platform }}.tar
-          retention-days: 3
+      # - name: Upload image as artifact 💾
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ inputs.image }}-${{ inputs.platform }}
+      #     path: /tmp/${{ inputs.image }}-${{ inputs.platform }}.tar
+      #     retention-days: 3
 
-      # Self-hosted runners share a state (whole VM) between runs
-      - name: Cleanup artifacts 🗑️
-        run: |
-          rm -f /tmp/${{ inputs.image }}-${{ inputs.platform }}.tar
-        shell: bash
-        if: always()
+      # # Self-hosted runners share a state (whole VM) between runs
+      # - name: Cleanup artifacts 🗑️
+      #   run: |
+      #     rm -f /tmp/${{ inputs.image }}-${{ inputs.platform }}.tar
+      #   shell: bash
+      #   if: always()
