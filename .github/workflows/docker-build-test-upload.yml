@@ -75,7 +75,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.parentImage }}
-          path: /tmp/${{ inputs.parentImage }}.tar
+          path: /tmp/
 
       - name: Load parent built image to Docker 🐳
         if: ${{ inputs.parentImage != '' }}
@@ -119,7 +119,7 @@ jobs:
           build-args: |
             NB_GID=0 
           # Push to renci-registry and dockerhub here.
-          tags: ${{ inputs.image }}
+          tags: ${{ steps.meta.outputs.tags }}
           outputs: type=docker, dest=/tmp/${{ inputs.image }}.tar
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
