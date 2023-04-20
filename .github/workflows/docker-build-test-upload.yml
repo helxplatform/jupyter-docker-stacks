@@ -37,11 +37,11 @@ jobs:
     runs-on: ${{ inputs.runsOn }}
     # This will create a registry that we use for docker images
     # as an intermediary between build and test. 
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+    # services:
+    #   registry:
+    #     image: registry:2
+    #     ports:
+    #       - 5000:5000
 
     steps:
       - name: Checkout Repo ⚡️
@@ -115,13 +115,13 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.image }}/
-          # load: true
-          push: true
+          load: true
+          push: false
           build-args: |
             NB_GID=0 
           # Push to renci-registry and dockerhub here.
-          tags: localhost:5000/${{ inputs.image }}
-          # outputs: type=docker, dest=/tmp/${{inputs.image}}.tar
+          tags: ${{ inputs.image }}
+          outputs: type=docker, dest=/tmp/${{ inputs.image }}.tar
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
@@ -130,23 +130,25 @@ jobs:
       #   shell: bash
 
         
-      - name: Upload artifact 📤
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.image }}
-          path: /tmp/${{ inputs.image }}.tar
+      # - name: Upload artifact 📤
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ inputs.image }}
+      #     path: /tmp/${{ inputs.image }}.tar
 
+      - name: Verify image 
+        run: |
+          docker image ls -a 
 
       - name: Push Containers 🛠️
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.image }}/
           push: true
-          pull: localhost:5000/${{ inputs.image }}
           # Push to renci-registry and dockerhub here.
           tags: ${{ steps.meta.outputs.tags }}
           # output image tags to tar file.
-          # cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
+          cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           # cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
       # - name: Write tags file 🏷
