@@ -143,15 +143,20 @@ jobs:
         run: |
           docker image ls -a 
 
-      - name: Push Containers 🛠️
-        uses: docker/build-push-action@v4
-        with:
-          context: ${{ inputs.image }}/
-          push: true
-          # Push to renci-registry and dockerhub here.
-          tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
-          # cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
+      - name: Push to Docker 🛠️
+        run: |
+          docker push --all-tags ${{ env.OWNER }}/${{ inputs.image }}
+      - name: Push to Containers 🫙
+        run: |
+          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: ${{ inputs.image }}/
+      #     push: true
+      #     # Push to renci-registry and dockerhub here.
+      #     tags: ${{ steps.meta.outputs.tags }}
+      #     cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
+      #     # cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
       # - name: Write tags file 🏷
       #   run: |
