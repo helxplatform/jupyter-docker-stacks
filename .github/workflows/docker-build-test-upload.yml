@@ -119,11 +119,14 @@ jobs:
             NB_GID=0 
           # Push to renci-registry and dockerhub here.
           tags: |
-            ${{ steps.meta.outputs.tags }}
-            ${{ env.OWNER }}/${{ inputs.image }}:latest
+            ${{ steps.meta.outputs.tags }}:latest
           outputs: type=docker, dest=/tmp/${{ inputs.image }}.tar
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
+
+      - name: Test
+        run: |
+          docker run --rm ${{ env.OWNER }}/${{ inputs.image }}:latest
 
       - name: Run tests ✅
         run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
