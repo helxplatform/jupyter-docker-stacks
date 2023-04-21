@@ -115,6 +115,7 @@ jobs:
         with:
           context: ${{ inputs.image }}/
           push: false
+          load: true
           build-args: |
             NB_GID=0 
           # Push to renci-registry and dockerhub here.
