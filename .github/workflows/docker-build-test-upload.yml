@@ -119,7 +119,8 @@ jobs:
             NB_GID=0 
           # Push to renci-registry and dockerhub here.
           tags: |
-            ${{ steps.meta.outputs.tags }}:latest
+            ${{ steps.meta.outputs.tags }}
+            ${{ env.OWNER }}/${{ inputs.image }}:latest
           outputs: type=docker, dest=/tmp/${{ inputs.image }}.tar
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
