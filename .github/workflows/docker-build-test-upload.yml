@@ -130,7 +130,7 @@ jobs:
 
       - name: Test
         run: |
-          docker run --rm ${{ env.OWNER }}/${{ inputs.image }}:latest
+          docker run --rm ${{ env.OWNER }}/${{ inputs.image }}:${{ github.ref_name }}
 
       - name: Run tests ✅
         run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
@@ -158,12 +158,13 @@ jobs:
 
       # Because Containers often fails, we keep going and display a message.
       - name: Push to Containers 🫙
+        id: containers
         run: |
           docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
         continue-on-error: true
 
-      - name: If Containers Failed
-        if: ${{ failure() }}
+      - name: If Containers Failed 
+        if: ${{ steps.containers.conclusion == 'failure' }}
         run: |
           echo "Last push failed retrying "
           docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
