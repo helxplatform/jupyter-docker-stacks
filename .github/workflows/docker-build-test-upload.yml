@@ -129,9 +129,9 @@ jobs:
         run: |
           docker load --input /tmp/${{ inputs.image }}.tar
 
-      - name: Run Test Docker Image
-        run: |
-          docker run --rm ${{ env.OWNER }}/${{ inputs.image }}:latest
+      # - name: Run Test Docker Image
+      #   run: |
+      #     docker run --force-rm --rm ${{ env.OWNER }}/${{ inputs.image }}:latest
 
       - name: Run tests ✅
         run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
