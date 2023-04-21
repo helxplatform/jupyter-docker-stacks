@@ -144,6 +144,7 @@ jobs:
         run: |
           docker image ls -a 
 
+
       - name: Push to Docker 🛠️
         run: |
           docker push --all-tags ${{ env.OWNER }}/${{ inputs.image }}
