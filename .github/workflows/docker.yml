@@ -8,9 +8,9 @@ on:
     branches:
       - main
       - develop
-    paths-ignore:
-      - ".github/workflows/*"
-      - ".github/*"
+    # paths-ignore:
+    #   - ".github/workflows/*"
+    #   - ".github/*"
   workflow_dispatch:
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency
