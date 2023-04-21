@@ -137,21 +137,20 @@ jobs:
         run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
         shell: bash
 
-        
+      # We do not want to push "latest" tag unless 
+      # the images being built are in the main branch. 
+      # the 'Run tests' step however expects "latest" tag;
+      # hence - we just delete the tag after the image is tested. 
+      - name: Remove latest tag if Develop Branch
+        if: ${{  github.ref != 'refs/heads/main'  }}
+        run: |
+          docker rmi ${{ env.OWNER }}/${{ inputs.image }}:latest
+
       - name: Upload artifact 📤
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.image }}
           path: /tmp/${{ inputs.image }}.tar
-
-      # - name: Load tested image to docker 
-      #   run: |
-      #     docker load --input /tmp/${{ inputs.image }}.tar
-
-      - name: Verify image 
-        run: |
-          docker image ls -a 
-
 
       - name: Push to Docker 🛠️
         run: |
@@ -164,6 +163,7 @@ jobs:
           docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
         continue-on-error: true
 
+      # Sometimes containers.recnci.org fails so we try again.
       - name: If Containers Failed 
         if: ${{ steps.containers.conclusion == 'failure' }}
         run: |
