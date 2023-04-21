@@ -125,11 +125,11 @@ jobs:
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
 
-      - name: Load tested image to docker 
+      - name: Load image to docker 
         run: |
           docker load --input /tmp/${{ inputs.image }}.tar
 
-      - name: Test
+      - name: Run Test Docker Image
         run: |
           docker run --rm ${{ env.OWNER }}/${{ inputs.image }}:latest
 
