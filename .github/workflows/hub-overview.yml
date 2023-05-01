@@ -10,15 +10,15 @@ on:
     paths:
       - ".github/workflows/hub-overview.yml"
 
-      - "all-spark-notebook/README.md"
+      # - "all-spark-notebook/README.md"
       - "base-notebook/README.md"
       - "datascience-notebook/README.md"
-      - "docker-stacks-foundation/README.md"
+      # - "docker-stacks-foundation/README.md"
       - "minimal-notebook/README.md"
-      - "pyspark-notebook/README.md"
-      - "r-notebook/README.md"
+      # - "pyspark-notebook/README.md"
+      # - "r-notebook/README.md"
       - "scipy-notebook/README.md"
-      - "tensorflow-notebook/README.md"
+      # - "tensorflow-notebook/README.md"
 
 jobs:
   update-dockerhub-overview:
@@ -52,13 +52,13 @@ jobs:
             description: "Minimal Jupyter Notebook Python Stack from https://github.com/jupyter/docker-stacks"
           - image: scipy-notebook
             description: "Scientific Jupyter Notebook Python Stack from https://github.com/jupyter/docker-stacks"
-          - image: r-notebook
-            description: "R Jupyter Notebook Stack from https://github.com/jupyter/docker-stacks"
-          - image: tensorflow-notebook
-            description: "Scientific Jupyter Notebook Python Stack w/ TensorFlow from https://github.com/jupyter/docker-stacks"
+          # - image: r-notebook
+          #   description: "R Jupyter Notebook Stack from https://github.com/jupyter/docker-stacks"
+          # - image: tensorflow-notebook
+          #   description: "Scientific Jupyter Notebook Python Stack w/ TensorFlow from https://github.com/jupyter/docker-stacks"
           - image: datascience-notebook
             description: "Data Science Jupyter Notebook Python Stack from https://github.com/jupyter/docker-stacks"
-          - image: pyspark-notebook
-            description: "Python and Spark Jupyter Notebook Stack from https://github.com/jupyter/docker-stacks"
-          - image: all-spark-notebook
-            description: "Python, Scala, R and Spark Jupyter Notebook Stack from https://github.com/jupyter/docker-stacks"
+          # - image: pyspark-notebook
+          #   description: "Python and Spark Jupyter Notebook Stack from https://github.com/jupyter/docker-stacks"
+          # - image: all-spark-notebook
+          #   description: "Python, Scala, R and Spark Jupyter Notebook Stack from https://github.com/jupyter/docker-stacks"

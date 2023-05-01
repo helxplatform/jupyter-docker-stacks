@@ -14,96 +14,161 @@ on:
         description: Image name
         required: true
         type: string
-      platform:
-        description: Image platform
-        required: true
-        type: string
+      # platform:
+      #   description: Image platform
+      #   required: true
+      #   type: string
       runsOn:
         description: GitHub Actions Runner image
         required: true
         type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      CONTAINERHUB_USERNAME:
+        required: true
+      CONTAINERHUB_TOKEN:
+        required: true
 
 jobs:
   build-test-upload:
     runs-on: ${{ inputs.runsOn }}
+    # This will create a registry that we use for docker images
+    # as an intermediary between build and test. 
+    # services:
+    #   registry:
+    #     image: registry:2
+    #     ports:
+    #       - 5000:5000
 
     steps:
       - name: Checkout Repo ⚡️
         uses: actions/checkout@v3
-      - name: Create dev environment 📦
-        uses: ./.github/actions/create-dev-env
-        with:
-          platform: ${{ inputs.platform }}
 
-      # Self-hosted runners share a state (whole VM) between runs
-      - name: Reset docker state and cleanup artifacts 🗑️
-        if: ${{ inputs.platform != 'x86_64' }}
+      - name: Set Up Python 🐍
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - uses: actions/cache@v3
+        name: Cache Python
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
+
+      - name: Install Dev Dependencies 📦
         run: |
-          docker system prune --all --force
-          rm -rf /tmp/tags/
-          rm -rf /tmp/hist_lines/
-          rm -rf /tmp/manifests/
+          pip install --upgrade pip
+          pip install --upgrade -r requirements-dev.txt
         shell: bash
 
-      - name: Load parent built image to Docker 📥
-        if: ${{ inputs.parentImage != '' }}
-        uses: ./.github/actions/load-image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
         with:
-          image: ${{ inputs.parentImage }}
-          platform: ${{ inputs.platform }}
+          driver-opts: |
+            network=host
+      -
+        name: Download artifact 📥
+        if: ${{ inputs.parentImage != '' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.parentImage }}
+          path: /tmp/
 
-      - name: Build image 🛠
-        run: docker build --rm --force-rm --tag ${{ env.OWNER }}/${{ inputs.image }} ${{ inputs.image }}/
-        env:
-          DOCKER_BUILDKIT: 1
-          # Full logs for CI build
-          BUILDKIT_PROGRESS: plain
-        shell: bash
+      - name: Load parent built image to Docker 🐳
+        if: ${{ inputs.parentImage != '' }}
+        run: |
+          docker load --input /tmp/${{ inputs.parentImage }}.tar
+
+      - name: Login to Docker Hub 🔐
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          logout: true
+
+      - name: Login to Containers 🫙
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+        with:
+          registry: containers.renci.org
+          username: ${{ secrets.CONTAINERHUB_USERNAME }}
+          password: ${{ secrets.CONTAINERHUB_TOKEN }}
+          logout: true
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            ${{ env.OWNER }}/${{ inputs.image }}
+            containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=ref,event=branch
+            type=sha
+
+      - name: Build Containers 🛠️
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ inputs.image }}/
+          push: false
+          build-args: |
+            NB_GID=0 
+          # Push to renci-registry and dockerhub here.
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ env.OWNER }}/${{ inputs.image }}:latest
+          outputs: type=docker, dest=/tmp/${{ inputs.image }}.tar
+          cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
+          cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
+
+      - name: Load image to docker 
+        run: |
+          docker load --input /tmp/${{ inputs.image }}.tar
+
+      # - name: Run Test Docker Image
+      #   run: |
+      #     docker run --force-rm --rm ${{ env.OWNER }}/${{ inputs.image }}:latest
 
       - name: Run tests ✅
         run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
         shell: bash
 
-      - name: Write tags file 🏷
+      # We do not want to push "latest" tag unless 
+      # the images being built are in the main branch. 
+      # the 'Run tests' step however expects "latest" tag;
+      # hence - we just delete the tag after the image is tested. 
+      - name: Remove latest tag if Develop Branch
+        if: ${{  github.ref != 'refs/heads/main'  }}
         run: |
-          python3 -m tagging.write_tags_file --short-image-name ${{ inputs.image }} --tags-dir /tmp/tags/ --owner ${{ env.OWNER }}
-        shell: bash
-      - name: Upload tags file 💾
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.image }}-${{ inputs.platform }}-tags
-          path: /tmp/tags/${{ inputs.platform }}-${{ inputs.image }}.txt
-          retention-days: 3
+          docker rmi ${{ env.OWNER }}/${{ inputs.image }}:latest
 
-      - name: Write manifest and build history file 🏷
-        run: python3 -m tagging.write_manifest --short-image-name ${{ inputs.image }} --hist-line-dir /tmp/hist_lines/ --manifest-dir /tmp/manifests/ --owner ${{ env.OWNER }}
-        shell: bash
-      - name: Upload manifest file 💾
+      - name: Upload artifact 📤
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.image }}-${{ inputs.platform }}-manifest
-          path: /tmp/manifests/${{ inputs.platform }}-${{ inputs.image }}-*.md
-          retention-days: 3
-      - name: Upload build history line 💾
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.image }}-${{ inputs.platform }}-history_line
-          path: /tmp/hist_lines/${{ inputs.platform }}-${{ inputs.image }}-*.txt
-          retention-days: 3
+          name: ${{ inputs.image }}
+          path: /tmp/${{ inputs.image }}.tar
 
-      - name: Save image as a tar for later use 💾
-        run: docker save ${{ env.OWNER }}/${{ inputs.image }} -o /tmp/${{ inputs.image }}-${{ inputs.platform }}.tar
-        shell: bash
-      - name: Upload image as artifact 💾
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.image }}-${{ inputs.platform }}
-          path: /tmp/${{ inputs.image }}-${{ inputs.platform }}.tar
-          retention-days: 3
-
-      # Self-hosted runners share a state (whole VM) between runs
-      - name: Cleanup artifacts 🗑️
+      - name: Push to Docker 🛠️
         run: |
-          rm -f /tmp/${{ inputs.image }}-${{ inputs.platform }}.tar
-        shell: bash
-        if: always()
+          docker push --all-tags ${{ env.OWNER }}/${{ inputs.image }}
+
+      # Because Containers often fails, we keep going and display a message.
+      - name: Push to Containers 🫙
+        id: containers
+        run: |
+          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+        continue-on-error: true
+
+      # Sometimes containers.recnci.org fails so we try again.
+      - name: If Containers Failed 
+        if: ${{ steps.containers.conclusion == 'failure' }}
+        run: |
+          echo "Last push failed retrying "
+          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+          echo "Completed!"
+        continue-on-error: true
+
