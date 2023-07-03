@@ -91,7 +91,6 @@ jobs:
     with:
       parentImage: scipy-notebook
       image: tensorflow-notebook
-      platform: x86_64
       runsOn: ubuntu-latest
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
