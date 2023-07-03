@@ -60,7 +60,6 @@ jobs:
       CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}      
     needs: [base]
 
-
   scipy:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
@@ -115,3 +114,5 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
