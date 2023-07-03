@@ -29,7 +29,7 @@ language = "en"
 html_theme = "alabaster"
 html_static_path = ["_static"]
 
-# File above was generated using sphinx 5.3.0 with this command:
+# File above was generated using sphinx 6.2.1 with this command:
 # sphinx-quickstart --project "docker-stacks" --author "Project Jupyter" -v "latest" -r "latest" -l en --no-sep --no-makefile --no-batchfile
 # These are custom options for this project
 
@@ -64,6 +64,7 @@ linkcheck_ignore = [
     r".*github\.com.*#",  # javascript based anchors
     r"https://github\.com/jupyter/docker-stacks/settings/actions/runners/new\?arch=arm64\&amp;os=linux",  # only works for users with permissions to change runners
     r"http://127\.0\.0\.1:.*",  # various examples
+    r"https://mybinder\.org/v2/gh/.*",  # lots of 500 errors
 ]
 
 linkcheck_allowed_redirects = {
