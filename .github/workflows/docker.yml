@@ -98,7 +98,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
       CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
-    needs: [x86_64-scipy]
+    needs: [scipy]
 
   datascience:
     uses: ./.github/workflows/docker-build-test-upload.yml
