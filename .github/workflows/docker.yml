@@ -73,23 +73,32 @@ jobs:
       CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
     needs: [minimal]
 
-  # # x86_64-r:
-  # #   uses: ./.github/workflows/docker-build-test-upload.yml
-  # #   with:
-  # #     parentImage: minimal-notebook
-  # #     image: r-notebook
-  # #     platform: x86_64
-  # #     runsOn: ubuntu-latest
-  # #   needs: [x86_64-minimal]
+  r:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parentImage: minimal-notebook
+      image: r-notebook
+      runsOn: ubuntu-latest
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
+    needs: [x86_64-minimal]
 
-  # # x86_64-tensorflow:
-  # #   uses: ./.github/workflows/docker-build-test-upload.yml
-  # #   with:
-  # #     parentImage: scipy-notebook
-  # #     image: tensorflow-notebook
-  # #     platform: x86_64
-  # #     runsOn: ubuntu-latest
-  # #   needs: [x86_64-scipy]
+  tensorflow:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parentImage: scipy-notebook
+      image: tensorflow-notebook
+      platform: x86_64
+      runsOn: ubuntu-latest
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
+    needs: [x86_64-scipy]
 
   datascience:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -110,9 +119,36 @@ jobs:
       parentImage: minimal-notebook
       image: julia-notebook
       runsOn: ubuntu-latest
-    needs: [minimal]
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
       CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
+    needs: [minimal]
+
+  pyspark:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parentImage: scipy-notebook
+      image: pyspark-notebook
+      runsOn: ubuntu-latest
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
+    needs: [scipy]
+
+  all-spark:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parentImage: pyspark-notebook
+      image: all-spark-notebook
+      runsOn: ubuntu-latest
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
+    needs: [pyspark]
+  

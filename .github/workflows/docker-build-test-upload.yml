@@ -162,7 +162,7 @@ jobs:
       - name: Push to Containers 🫙
         id: containers
         run: |
-          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
         continue-on-error: true
 
       # Sometimes containers.recnci.org fails so we try again.
@@ -170,7 +170,7 @@ jobs:
         if: ${{ steps.containers.conclusion == 'failure' }}
         run: |
           echo "Last push failed retrying "
-          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
           echo "Completed!"
         continue-on-error: true
 
