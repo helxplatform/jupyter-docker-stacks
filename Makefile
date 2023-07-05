@@ -13,18 +13,9 @@ ALL_IMAGES:= \
 	base-notebook \
 	minimal-notebook \
 	r-notebook \
+	julia-notebook \
 	scipy-notebook \
 	tensorflow-notebook \
-	datascience-notebook \
-	pyspark-notebook \
-	all-spark-notebook
-
-AARCH64_IMAGES:= \
-	docker-stacks-foundation \
-	base-notebook \
-	minimal-notebook \
-	r-notebook \
-	scipy-notebook \
 	datascience-notebook \
 	pyspark-notebook \
 	all-spark-notebook
@@ -46,11 +37,10 @@ help:
 
 build/%: DOCKER_BUILD_ARGS?=
 build/%: ## build the latest image for a stack using the system's architecture
-	docker build $(DOCKER_BUILD_ARGS) --rm --force-rm -t $(OWNER)/$(notdir $@):latest ./$(notdir $@) --build-arg OWNER=$(OWNER)
+	docker build $(DOCKER_BUILD_ARGS) --rm --force-rm --tag $(OWNER)/$(notdir $@):latest ./$(notdir $@) --build-arg OWNER=$(OWNER)
 	@echo -n "Built image size: "
 	@docker images $(OWNER)/$(notdir $@):latest --format "{{.Size}}"
 build-all: $(foreach I, $(ALL_IMAGES), build/$(I)) ## build all stacks
-build-aarch64: $(foreach I, $(AARCH64_IMAGES), build/$(I)) ## build aarch64 stacks
 
 
 check-outdated/%: ## check the outdated mamba/conda packages in a stack and produce a report (experimental)
@@ -62,10 +52,10 @@ check-outdated-all: $(foreach I, $(ALL_IMAGES), check-outdated/$(I)) ## check al
 cont-clean-all: cont-stop-all cont-rm-all ## clean all containers (stop + rm)
 cont-stop-all: ## stop all containers
 	@echo "Stopping all containers ..."
-	-docker stop -t0 $(shell docker ps -a -q) 2> /dev/null
+	-docker stop --time 0 $(shell docker ps --all --quiet) 2> /dev/null
 cont-rm-all: ## remove all containers
 	@echo "Removing all containers ..."
-	-docker rm --force $(shell docker ps -a -q) 2> /dev/null
+	-docker rm --force $(shell docker ps --all --quiet) 2> /dev/null
 
 
 
@@ -79,7 +69,7 @@ linkcheck-docs: ## check broken links
 
 hook/%: ## run post-build hooks for an image
 	python3 -m tagging.tag_image --short-image-name "$(notdir $@)" --owner "$(OWNER)" && \
-	python3 -m tagging.write_manifest --short-image-name "$(notdir $@)" --hist-line-dir /tmp/hist_lines/ --manifest-dir /tmp/manifests/ --owner "$(OWNER)"
+	python3 -m tagging.write_manifest --short-image-name "$(notdir $@)" --hist-line-dir /tmp/jupyter/hist_lines/ --manifest-dir /tmp/jupyter/manifests/ --owner "$(OWNER)"
 hook-all: $(foreach I, $(ALL_IMAGES), hook/$(I)) ## run post-build hooks for all images
 
 
@@ -93,7 +83,7 @@ img-rm: ## remove jupyter images
 	-docker rmi --force $(shell docker images --quiet "$(OWNER)/*") 2> /dev/null
 img-rm-dang: ## remove dangling images (tagged None)
 	@echo "Removing dangling images ..."
-	-docker rmi --force $(shell docker images -f "dangling=true" -q) 2> /dev/null
+	-docker rmi --force $(shell docker images -f "dangling=true" --quiet) 2> /dev/null
 
 
 

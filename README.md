@@ -23,11 +23,11 @@ The [User Guide on ReadTheDocs](https://jupyter-docker-stacks.readthedocs.io/en/
 
 **Example 1:**
 
-This command pulls the `jupyter/scipy-notebook` image tagged `2023-02-28` from Docker Hub if it is not already present on the local host.
+This command pulls the `jupyter/scipy-notebook` image tagged `2023-06-01` from Docker Hub if it is not already present on the local host.
 It then starts a container running a Jupyter Server and exposes the container's internal port `8888` to port `10000` of the host machine:
 
 ```bash
-docker run -p 10000:8888 jupyter/scipy-notebook:2023-02-28
+docker run -p 10000:8888 jupyter/scipy-notebook:2023-06-01
 ```
 
 You can modify the port on which the container's port is exposed by [changing the value of the `-p` option](https://docs.docker.com/engine/reference/run/#expose-incoming-ports) to `-p 8888:8888`.
@@ -42,11 +42,11 @@ The container remains intact for restart after the Jupyter Server exits.
 
 **Example 2:**
 
-This command pulls the `jupyter/datascience-notebook` image tagged `2023-02-28` from Docker Hub if it is not already present on the local host.
+This command pulls the `jupyter/datascience-notebook` image tagged `2023-06-01` from Docker Hub if it is not already present on the local host.
 It then starts an _ephemeral_ container running a Jupyter Server and exposes the server on host port 10000.
 
 ```bash
-docker run -it --rm -p 10000:8888 -v "${PWD}":/home/jovyan/work jupyter/datascience-notebook:2023-02-28
+docker run -it --rm -p 10000:8888 -v "${PWD}":/home/jovyan/work jupyter/datascience-notebook:2023-06-01
 ```
 
 The use of the `-v` flag in the command mounts the current working directory on the host (`${PWD}` in the example command) as `/home/jovyan/work` in the container.
@@ -60,15 +60,14 @@ system when the container exits, but any changes made to the `~/work` directory 
 
 ## Contributing
 
-Please see the [Contributor Guide on ReadTheDocs](https://jupyter-docker-stacks.readthedocs.io/en/latest/) for
-information about how to contribute package updates, recipes, features, tests, and community
-maintained stacks.
+Please see the [Contributor Guide on ReadTheDocs](https://jupyter-docker-stacks.readthedocs.io/en/latest/)
+for information about how to contribute recipes, features, tests, and community maintained stacks.
 
 ## Maintainer Help Wanted
 
 We value all positive contributions to the Docker stacks project,
 from [bug reports](https://jupyter-docker-stacks.readthedocs.io/en/latest/contributing/issues.html)
-to [pull requests](https://jupyter-docker-stacks.readthedocs.io/en/latest/contributing/packages.html)
+to [pull requests](https://jupyter-docker-stacks.readthedocs.io/en/latest/contributing/features.html#submitting-a-pull-request)
 to help with answering questions.
 We'd also like to invite members of the community to help with two maintainer activities:
 
@@ -105,29 +104,31 @@ This change is tracked in the issue [#1217](https://github.com/jupyter/docker-st
 ## Resources
 
 - [Documentation on ReadTheDocs](https://jupyter-docker-stacks.readthedocs.io/en/latest/)
-- [Issue Tracker on GitHub](https://github.com/jupyter/docker-stacks)
+- [Issue Tracker on GitHub](https://github.com/jupyter/docker-stacks/issues)
 - [Jupyter Discourse Forum](https://discourse.jupyter.org/)
 - [Jupyter Website](https://jupyter.org)
 - [Images on DockerHub](https://hub.docker.com/u/jupyter)
 
 ## CPU Architectures
 
-- We publish containers for both `x86_64` and `aarch64` platforms, except for `tensorflow-notebook`, which only supports `x86_64` for now
-- Single-platform images have either `aarch64` or `x86_64` tag prefixes, for example, `jupyter/base-notebook:aarch64-python-3.10.5`
-- Starting from `2022-09-21`, we create multi-platform images
+- We publish containers for both `x86_64` and `aarch64` platforms
+- Single-platform images have either `aarch64-` or `x86_64-` tag prefixes, for example, `jupyter/base-notebook:aarch64-python-3.10.5`
+- Starting from `2022-09-21`, we create multi-platform images (except `tensorflow-notebook`)
+- Starting from `2023-06-01`, we create multi-platform `tensorflow-notebook` image as well
 
 ## Using old images
 
 This project only builds one set of images at a time.
-On `2022-10-09`, we rebuilt images with old `Ubuntu` and `python` versions for users who still need them:
+If you want to use older `Ubuntu` and/or `python` version, you can use following images:
 
-| Ubuntu | Python | Tag                                     |
-| ------ | ------ | --------------------------------------- |
-| 20.04  | 3.7    | `1aac87eb7fa5`                          |
-| 20.04  | 3.8    | `a374cab4fcb6`                          |
-| 20.04  | 3.9    | `5ae537728c69`                          |
-| 20.04  | 3.10   | `f3079808ca8c`                          |
-| 22.04  | 3.7    | `b86753318aa1`                          |
-| 22.04  | 3.8    | `7285848c0a11`                          |
-| 22.04  | 3.9    | `ed2908bbb62e`                          |
-| 22.04  | 3.10   | `latest` (this image is rebuilt weekly) |
+| Build Date   | Ubuntu | Python | Tag            |
+| ------------ | ------ | ------ | -------------- |
+| 2022-10-09   | 20.04  | 3.7    | `1aac87eb7fa5` |
+| 2022-10-09   | 20.04  | 3.8    | `a374cab4fcb6` |
+| 2022-10-09   | 20.04  | 3.9    | `5ae537728c69` |
+| 2022-10-09   | 20.04  | 3.10   | `f3079808ca8c` |
+| 2022-10-09   | 22.04  | 3.7    | `b86753318aa1` |
+| 2022-10-09   | 22.04  | 3.8    | `7285848c0a11` |
+| 2022-10-09   | 22.04  | 3.9    | `ed2908bbb62e` |
+| 2023-05-30   | 22.04  | 3.10   | `4d70cf8da953` |
+| weekly build | 22.04  | 3.11   | `latest`       |
