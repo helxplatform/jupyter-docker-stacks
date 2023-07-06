@@ -8,6 +8,7 @@ on:
     branches:
       - main
       - develop
+      - merge-from-jupyter-docker-stacks-main-20230703
     # paths-ignore:
     #   - ".github/workflows/*"
     #   - ".github/*"
