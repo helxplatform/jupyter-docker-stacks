@@ -70,6 +70,7 @@ EXCLUDED_PACKAGES = [
     "conda-forge::blas[build=openblas]",
     "hdf5",
     "jupyterlab-git",
+    "jupyter-pluto-proxy",
     "openssl",
     "pandas[version='>",
     "protobuf",
