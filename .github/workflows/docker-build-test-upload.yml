@@ -116,11 +116,13 @@ jobs:
           context: ${{ inputs.image }}/
           push: false
           build-args: |
-            NB_GID=0 
+            NB_GID=0
+            ROOT_CONTAINER=nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
           # Push to renci-registry and dockerhub here.
           tags: |
             ${{ steps.meta.outputs.tags }}
             ${{ env.OWNER }}/${{ inputs.image }}:latest
+            ${{ env.OWNER }}/${{ inputs.image }}:cuda
           outputs: type=docker, dest=/tmp/${{ inputs.image }}.tar
           cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
           cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
@@ -160,7 +162,7 @@ jobs:
       - name: Push to Containers 🫙
         id: containers
         run: |
-          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
         continue-on-error: true
 
       # Sometimes containers.recnci.org fails so we try again.
@@ -168,7 +170,7 @@ jobs:
         if: ${{ steps.containers.conclusion == 'failure' }}
         run: |
           echo "Last push failed retrying "
-          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/${{ inputs.image }}
+          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
           echo "Completed!"
         continue-on-error: true
 

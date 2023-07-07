@@ -29,7 +29,7 @@ Create a new Dockerfile like the one shown below.
 
 ```dockerfile
 # Start from a core stack version
-FROM jupyter/datascience-notebook:2023-02-28
+FROM jupyter/datascience-notebook:2023-06-01
 # Install in the default python3 environment
 RUN pip install --no-cache-dir 'flake8==3.9.2' && \
     fix-permissions "${CONDA_DIR}" && \
@@ -48,7 +48,7 @@ Next, create a new Dockerfile like the one shown below.
 
 ```dockerfile
 # Start from a core stack version
-FROM jupyter/datascience-notebook:2023-02-28
+FROM jupyter/datascience-notebook:2023-06-01
 # Install from the requirements.txt file
 COPY --chown=${NB_UID}:${NB_GID} requirements.txt /tmp/
 RUN pip install --no-cache-dir --requirement /tmp/requirements.txt && \
@@ -60,7 +60,7 @@ For conda, the Dockerfile is similar:
 
 ```dockerfile
 # Start from a core stack version
-FROM jupyter/datascience-notebook:2023-02-28
+FROM jupyter/datascience-notebook:2023-06-01
 # Install from the requirements.txt file
 COPY --chown=${NB_UID}:${NB_GID} requirements.txt /tmp/
 RUN mamba install --yes --file /tmp/requirements.txt && \
@@ -132,7 +132,7 @@ ENTRYPOINT ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root"]
 And build the image as:
 
 ```bash
-docker build -t jupyter/scipy-dasklabextension:latest .
+docker build --tag jupyter/scipy-dasklabextension:latest .
 ```
 
 Once built, run using the command:
@@ -283,7 +283,7 @@ To use a specific version of JupyterHub, the version of `jupyterhub` in your ima
 version in the Hub itself.
 
 ```dockerfile
-FROM jupyter/base-notebook:2023-02-28
+FROM jupyter/base-notebook:2023-06-01
 RUN pip install --no-cache-dir jupyterhub==1.4.1 && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
@@ -405,7 +405,7 @@ RUN echo 'deb https://cdn-fastly.deb.debian.org/debian jessie-backports main' > 
     rm /etc/apt/sources.list.d/jessie-backports.list && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
 # Add Hadoop binaries
-    wget https://mirrors.ukfast.co.uk/sites/ftp.apache.org/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz && \
+    wget --progress=dot:giga https://mirrors.ukfast.co.uk/sites/ftp.apache.org/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz && \
     tar -xvf hadoop-2.7.3.tar.gz -C /usr/local && \
     chown -R "${NB_USER}:users" /usr/local/hadoop-2.7.3 && \
     rm -f hadoop-2.7.3.tar.gz && \
@@ -474,7 +474,7 @@ For JupyterLab:
 
 ```bash
 docker run -it --rm \
-    jupyter/base-notebook:2023-02-28 \
+    jupyter/base-notebook:2023-06-01 \
     start.sh jupyter lab --LabApp.token=''
 ```
 
@@ -482,7 +482,7 @@ For jupyter classic:
 
 ```bash
 docker run -it --rm \
-    jupyter/base-notebook:2023-02-28 \
+    jupyter/base-notebook:2023-06-01 \
     start.sh jupyter notebook --NotebookApp.token=''
 ```
 
@@ -543,7 +543,7 @@ FROM jupyter/scipy-notebook:latest
 
 RUN PYV=$(ls "${CONDA_DIR}/lib" | grep ^python) && \
     MPL_DATA="${CONDA_DIR}/lib/${PYV}/site-packages/matplotlib/mpl-data" && \
-    wget --quiet -P "${MPL_DATA}/fonts/ttf/" https://mirrors.cloud.tencent.com/adobe-fonts/source-han-sans/SubsetOTF/CN/SourceHanSansCN-Normal.otf && \
+    wget --progress=dot:giga -P "${MPL_DATA}/fonts/ttf/" https://mirrors.cloud.tencent.com/adobe-fonts/source-han-sans/SubsetOTF/CN/SourceHanSansCN-Normal.otf && \
     sed -i 's/#font.family/font.family/g' "${MPL_DATA}/matplotlibrc" && \
     sed -i 's/#font.sans-serif:/font.sans-serif: Source Han Sans CN,/g' "${MPL_DATA}/matplotlibrc" && \
     sed -i 's/#axes.unicode_minus: True/axes.unicode_minus: False/g' "${MPL_DATA}/matplotlibrc" && \
@@ -575,7 +575,7 @@ The example below is a Dockerfile to install the [ijavascript kernel](https://gi
 
 ```dockerfile
 # use one of the Jupyter Docker Stacks images
-FROM jupyter/scipy-notebook:2023-02-28
+FROM jupyter/scipy-notebook:2023-06-01
 
 # install ijavascript
 RUN npm install -g ijavascript
@@ -598,7 +598,7 @@ ENV PATH="/opt/mssql-tools18/bin:${PATH}"
 
 RUN apt-get update --yes && \
     apt-get install --yes --no-install-recommends gnupg2 && \
-    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /usr/share/keyrings/microsoft.gpg && \
+    wget --progress=dot:giga https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /usr/share/keyrings/microsoft.gpg && \
     apt-get purge --yes gnupg2 && \
     echo "deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" > /etc/apt/sources.list.d/microsoft.list && \
     apt-get update --yes && \
