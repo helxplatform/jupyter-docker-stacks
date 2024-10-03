@@ -1,15 +1,21 @@
-name: Download parent image, build a new one and test it; then upload the image, tags and manifests to GitHub artifacts
+name: Download a parent image, build a new one, and test it; then upload the image, tags, and manifests to GitHub artifacts
 
 env:
+  REGISTRY: quay.io
   OWNER: ${{ github.repository_owner }}
 
 on:
   workflow_call:
     inputs:
-      parentImage:
+      parent-image:
         description: Parent image name
         required: true
         type: string
+      parent-variant:
+        description: Parent variant tag prefix
+        required: false
+        type: string
+        default: default
       image:
         description: Image name
         required: true
@@ -44,6 +50,19 @@ jobs:
     #       - 5000:5000
 
     steps:
+      # Image with CUDA needs extra disk space
+      - name: Free disk space 🧹
+        if: contains(inputs.variant, 'cuda') && inputs.platform == 'x86_64'
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
       - name: Checkout Repo ⚡️
         uses: actions/checkout@v3
 
@@ -136,7 +155,7 @@ jobs:
       #     docker run --force-rm --rm ${{ env.OWNER }}/${{ inputs.image }}:latest
 
       - name: Run tests ✅
-        run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
+        run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --registry ${{ env.REGISTRY }} --owner ${{ env.OWNER }}
         shell: bash
 
       # We do not want to push "latest" tag unless 

@@ -1,4 +1,9 @@
-name: Build, test and push Docker Images
+name: Build, test, and push Docker Images
+
+# [FAST_BUILD] in the PR title makes this workflow only build
+# the `jupyter/docker-stacks-foundation` and `jupyter/base-notebook` images
+# This allows to run CI faster if a full build is not required
+# This only works for a `pull_request` event and does not affect `push` to the `main` branch
 
 on:
   # schedule:
@@ -15,7 +20,7 @@ on:
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
-  # only cancel in-progress jobs or runs for the current workflow - matches against branch & tags
+  # Only cancel in-progress jobs or runs for the current workflow - matches against branch & tags
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
@@ -24,7 +29,7 @@ jobs:
   foundation:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
-      parentImage: ""
+      parent-image: ""
       image: docker-stacks-foundation
       runsOn: ubuntu-latest
     secrets:
@@ -36,7 +41,7 @@ jobs:
   base:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
-      parentImage: docker-stacks-foundation
+      parent-image: docker-stacks-foundation
       image: base-notebook
       runsOn: ubuntu-latest
     secrets:
@@ -49,7 +54,7 @@ jobs:
   minimal:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
-      parentImage: base-notebook
+      parent-image: base-notebook
       image: minimal-notebook
       runsOn: ubuntu-latest
     secrets:
@@ -62,7 +67,7 @@ jobs:
   scipy:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
-      parentImage: minimal-notebook
+      parent-image: minimal-notebook
       image: scipy-notebook
       runsOn: ubuntu-latest
     secrets:
@@ -75,7 +80,7 @@ jobs:
   r:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
-      parentImage: minimal-notebook
+      parent-image: minimal-notebook
       image: r-notebook
       runsOn: ubuntu-latest
     secrets:
@@ -88,7 +93,7 @@ jobs:
   tensorflow:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
-      parentImage: scipy-notebook
+      parent-image: scipy-notebook
       image: tensorflow-notebook
       runsOn: ubuntu-latest
     secrets:
@@ -101,7 +106,7 @@ jobs:
   datascience:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
-      parentImage: scipy-notebook
+      parent-image: scipy-notebook
       image: datascience-notebook
       runsOn: ubuntu-latest
     secrets:
@@ -127,7 +132,7 @@ jobs:
   pyspark:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
-      parentImage: scipy-notebook
+      parent-image: scipy-notebook
       image: pyspark-notebook
       runsOn: ubuntu-latest
     secrets:
@@ -140,7 +145,7 @@ jobs:
   all-spark:
     uses: ./.github/workflows/docker-build-test-upload.yml
     with:
-      parentImage: pyspark-notebook
+      parent-image: pyspark-notebook
       image: all-spark-notebook
       runsOn: ubuntu-latest
     secrets:

@@ -12,10 +12,11 @@ ALL_IMAGES = {
     "base-notebook": "docker-stacks-foundation",
     "minimal-notebook": "base-notebook",
     "scipy-notebook": "minimal-notebook",
-    "datascience-notebook": "scipy-notebook",
     "r-notebook": "minimal-notebook",
     "julia-notebook": "minimal-notebook",
     "tensorflow-notebook": "scipy-notebook",
+    "pytorch-notebook": "scipy-notebook",
+    "datascience-notebook": "scipy-notebook",
     "pyspark-notebook": "scipy-notebook",
     "all-spark-notebook": "pyspark-notebook",
 }
