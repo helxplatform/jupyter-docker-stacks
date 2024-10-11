@@ -106,6 +106,10 @@ jobs:
             type=raw,value=cuda
             type=raw,value=latest
 
+      - name: Create Temp Dir 
+        run: |
+          mkdir -p /tmp/jupyter/images/
+          
       - name: Build Containers 🛠️
         uses: docker/build-push-action@v6
         with:
