@@ -109,7 +109,7 @@ jobs:
       - name: Build Containers 🛠️
         uses: docker/build-push-action@v6
         with:
-          context: ${{ inputs.image }}/
+          context: /images/${{ inputs.image }}/
           push: false
           build-args: |
             NB_GID=0
