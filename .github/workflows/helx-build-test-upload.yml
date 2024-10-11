@@ -33,7 +33,7 @@ on:
         required: true
 
 jobs:
-  build-test-upload:
+  helx-build-test-upload:
     runs-on: ${{ inputs.runsOn }}
 
     steps:
