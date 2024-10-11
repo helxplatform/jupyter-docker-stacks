@@ -13,6 +13,7 @@ Table of Contents
    using/common
    using/specifics
    using/recipes
+   using/custom-images
    using/troubleshooting
    using/faq
 
@@ -32,6 +33,7 @@ Table of Contents
    :maxdepth: 2
    :caption: Maintainer Guide
 
+   maintaining/new-images-and-packages-policy
    maintaining/tasks
    maintaining/aarch64-runner
 
