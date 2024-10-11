@@ -19,7 +19,7 @@ concurrency:
 jobs:
 
   foundation:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: ""
       image: docker-stacks-foundation
@@ -31,7 +31,7 @@ jobs:
       CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
 
   base:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: docker-stacks-foundation
       image: base-notebook
@@ -44,7 +44,7 @@ jobs:
     needs: [foundation]
 
   minimal:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: base-notebook
       image: minimal-notebook
@@ -57,7 +57,7 @@ jobs:
     needs: [base]
 
   scipy:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: minimal-notebook
       image: scipy-notebook
@@ -70,7 +70,7 @@ jobs:
     needs: [minimal]
 
   r:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: minimal-notebook
       image: r-notebook
@@ -83,7 +83,7 @@ jobs:
     needs: [minimal]
 
   tensorflow:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: scipy-notebook
       image: tensorflow-notebook
@@ -96,7 +96,7 @@ jobs:
     needs: [scipy]
 
   datascience:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: scipy-notebook
       image: datascience-notebook
@@ -109,7 +109,7 @@ jobs:
     needs: [scipy]
 
   julia:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: minimal-notebook
       image: julia-notebook
@@ -122,7 +122,7 @@ jobs:
     needs: [minimal]
 
   pyspark:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: scipy-notebook
       image: pyspark-notebook
@@ -135,7 +135,7 @@ jobs:
     needs: [scipy]
 
   all-spark:
-    uses: ./.github/workflows/docker-build-test-upload.yml
+    uses: ./.github/workflows/helx-build-test-upload.yml
     with:
       parentImage: pyspark-notebook
       image: all-spark-notebook
