@@ -33,6 +33,15 @@ on:
         description: GitHub Actions Runner image
         required: true
         type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      CONTAINERHUB_USERNAME:
+        required: true
+      CONTAINERHUB_TOKEN:
+        required: true
 
 jobs:
   build-test-upload:
@@ -63,10 +72,8 @@ jobs:
       - name: Reset docker state and cleanup artifacts 🗑️
         if: inputs.platform != 'x86_64'
         run: |
-          docker kill $(docker ps --quiet) || true
-          docker rm $(docker ps --all --quiet) || true
-          docker system prune --all --force
-          rm -rf /tmp/jupyter/
+          pip install --upgrade pip
+          pip install --upgrade -r requirements-dev.txt
         shell: bash
 
       - name: Load parent built image to Docker 📥
@@ -94,7 +101,12 @@ jobs:
         run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --registry ${{ env.REGISTRY }} --owner ${{ env.OWNER }}
         shell: bash
 
-      - name: Write tags file 🏷
+      # We do not want to push "latest" tag unless 
+      # the images being built are in the main branch. 
+      # the 'Run tests' step however expects "latest" tag;
+      # hence - we just delete the tag after the image is tested. 
+      - name: Remove latest tag if Develop Branch
+        if: ${{  github.ref != 'refs/heads/main'  }}
         run: |
           python3 -m tagging.write_tags_file --short-image-name ${{ inputs.image }} --tags-dir /tmp/jupyter/tags/ --registry ${{ env.REGISTRY }} --owner ${{ env.OWNER }} --variant ${{ inputs.variant }}
         shell: bash

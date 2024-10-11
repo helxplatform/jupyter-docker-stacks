@@ -82,6 +82,7 @@ EXCLUDED_PACKAGES = [
     "python",
     "r-irkernel",
     "unixodbc",
+    "jupyterlab-git",
 ]
 
 

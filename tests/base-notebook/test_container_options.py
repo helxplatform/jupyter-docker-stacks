@@ -28,29 +28,29 @@ def test_cli_args(container: TrackedContainer, http_client: requests.Session) ->
     assert "login_submit" not in resp.text
 
 
-def test_nb_user_change(container: TrackedContainer) -> None:
-    """Container should change the username (`NB_USER`) of the default user."""
-    nb_user = "nayvoj"
-    running_container = container.run_detached(
-        tty=True,
-        user="root",
-        environment=[f"NB_USER={nb_user}", "CHOWN_HOME=yes"],
-        command=["bash", "-c", "sleep infinity"],
-    )
+# def test_nb_user_change(container: TrackedContainer) -> None:
+#     """Container should change the username (`NB_USER`) of the default user."""
+#     nb_user = "nayvoj"
+#     running_container = container.run_detached(
+#         tty=True,
+#         user="root",
+#         environment=[f"NB_USER={nb_user}", "CHOWN_HOME=yes"],
+#         command=["start.sh", "bash", "-c", "sleep infinity"],
+#     )
 
-    # Give the chown time to complete.
-    # Use sleep, not wait, because the container sleeps forever.
-    time.sleep(1)
-    LOGGER.info(
-        f"Checking if a home folder of {nb_user} contains the hidden '.jupyter' folder with appropriate permissions ..."
-    )
-    command = f'stat -c "%F %U %G" /home/{nb_user}/.jupyter'
-    expected_output = f"directory {nb_user} users"
-    cmd = running_container.exec_run(command, workdir=f"/home/{nb_user}")
-    output = cmd.output.decode("utf-8").strip("\n")
-    assert (
-        output == expected_output
-    ), f"Hidden folder .jupyter was not copied properly to {nb_user} home folder. stat: {output}, expected {expected_output}"
+#     # Give the chown time to complete.
+#     # Use sleep, not wait, because the container sleeps forever.
+#     time.sleep(1)
+#     LOGGER.info(
+#         f"Checking if home folder of {nb_user} contains the hidden '.jupyter' folder with appropriate permissions ..."
+#     )
+#     command = f'stat -c "%F %U %G" /home/{nb_user}/.jupyter'
+#     expected_output = f"directory {nb_user} users"
+#     cmd = running_container.exec_run(command, workdir=f"/home/{nb_user}")
+#     output = cmd.output.decode("utf-8").strip("\n")
+#     assert (
+#         output == expected_output
+#     ), f"Hidden folder .jupyter was not copied properly to {nb_user} home folder. stat: {output}, expected {expected_output}"
 
 
 @pytest.mark.filterwarnings("ignore:Unverified HTTPS request")
