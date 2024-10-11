@@ -109,11 +109,11 @@ jobs:
       - name: Create Temp Dir 
         run: |
           mkdir -p /tmp/jupyter/images/
-          
+
       - name: Build Containers 🛠️
         uses: docker/build-push-action@v6
         with:
-          context: /images/${{ inputs.image }}/
+          context: images/${{ inputs.image }}/
           push: false
           build-args: |
             NB_GID=0
