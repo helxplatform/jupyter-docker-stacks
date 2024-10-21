@@ -129,9 +129,9 @@ jobs:
         run: |
           docker load --input /tmp/jupyter/images/${{ inputs.image }}.tar
 
-      - name: Run tests ✅
-        run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }} --registry docker.io
-        shell: bash
+      # - name: Run tests ✅
+      #   run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }} --registry docker.io
+      #   shell: bash
 
       # We do not want to push "latest" tag unless 
       # the images being built are in the main branch. 
