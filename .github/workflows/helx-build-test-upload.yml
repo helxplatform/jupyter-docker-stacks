@@ -97,7 +97,7 @@ jobs:
           # list of Docker images to use as base name for tags
           images: |
             ${{ env.OWNER }}/${{ inputs.image }}
-          # containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
+            containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
           # generate Docker tags based on the following events/attributes
           # using the type=raw,value="" syntax allows for custom tags.
           tags: |
