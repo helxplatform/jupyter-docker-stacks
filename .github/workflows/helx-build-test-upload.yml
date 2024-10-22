@@ -128,10 +128,11 @@ jobs:
       - name: Load image to docker 
         run: |
           docker load --input /tmp/jupyter/images/${{ inputs.image }}.tar
-
-      # - name: Run tests ✅
-      #   run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }} --registry docker.io
-      #   shell: bash
+      # Because HeLx runs all processes with GID=0, we have issues with these tests.
+      - name: Run tests ✅
+        run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }} --registry docker.io
+        shell: bash
+        continue-on-error: true
 
       # We do not want to push "latest" tag unless 
       # the images being built are in the main branch. 
