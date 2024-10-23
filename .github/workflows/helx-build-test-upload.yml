@@ -90,7 +90,8 @@ jobs:
           password: ${{ secrets.CONTAINERHUB_TOKEN }}
           logout: true
 
-      - name: Docker meta
+      - name: Docker meta Prod
+        if: ${{  github.ref != 'refs/heads/main'  }} 
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -105,6 +106,23 @@ jobs:
             type=sha
             type=raw,value=cuda
             type=raw,value=latest
+
+      - name: Docker meta Dev
+        if: ${{  github.ref != 'refs/heads/develop'  }} 
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            ${{ env.OWNER }}/${{ inputs.image }}
+            containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
+          # generate Docker tags based on the following events/attributes
+          # using the type=raw,value="" syntax allows for custom tags.
+          tags: |
+            type=ref,event=branch
+            type=sha
+            type=raw,value=cuda
+
 
       - name: Create Temp Dir 
         run: |
@@ -138,10 +156,10 @@ jobs:
       # the images being built are in the main branch. 
       # the 'Run tests' step however expects "latest" tag;
       # hence - we just delete the tag after the image is tested. 
-      - name: Remove latest tag if Develop Branch
-        if: ${{  github.ref != 'refs/heads/main'  }}
-        run: |
-          docker rmi ${{ env.OWNER }}/${{ inputs.image }}:latest
+      # - name: Remove latest tag if Develop Branch
+      #   if: ${{  github.ref != 'refs/heads/main'  }}
+      #   run: |
+      #     docker rmi ${{ env.OWNER }}/${{ inputs.image }}:latest
 
       - name: Upload artifact 📤
         uses: actions/upload-artifact@v4
