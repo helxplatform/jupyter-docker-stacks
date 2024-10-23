@@ -1,24 +1,35 @@
-name: Download parent image, build a new one and test it; then upload the image, tags and manifests to GitHub artifacts
+name: Download a parent image, build a new one, and test it; then upload the image, tags, and manifests to GitHub artifacts
 
 env:
+  REGISTRY: quay.io
   OWNER: ${{ github.repository_owner }}
 
 on:
   workflow_call:
     inputs:
-      parentImage:
+      parent-image:
         description: Parent image name
         required: true
         type: string
+      parent-variant:
+        description: Parent variant tag prefix
+        required: false
+        type: string
+        default: default
       image:
         description: Image name
         required: true
         type: string
-      # platform:
-      #   description: Image platform
-      #   required: true
-      #   type: string
-      runsOn:
+      variant:
+        description: Variant tag prefix
+        required: false
+        type: string
+        default: default
+      platform:
+        description: Image platform
+        required: true
+        type: string
+      runs-on:
         description: GitHub Actions Runner image
         required: true
         type: string
@@ -34,109 +45,60 @@ on:
 
 jobs:
   build-test-upload:
-    runs-on: ${{ inputs.runsOn }}
-    # This will create a registry that we use for docker images
-    # as an intermediary between build and test. 
-    # services:
-    #   registry:
-    #     image: registry:2
-    #     ports:
-    #       - 5000:5000
+    runs-on: ${{ inputs.runs-on }}
 
     steps:
+      # Image with CUDA needs extra disk space
+      - name: Free disk space 🧹
+        if: contains(inputs.variant, 'cuda') && inputs.platform == 'x86_64'
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Create dev environment 📦
+        uses: ./.github/actions/create-dev-env
 
-      - name: Set Up Python 🐍
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
-
-      - uses: actions/cache@v3
-        name: Cache Python
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
-
-      - name: Install Dev Dependencies 📦
+      # Self-hosted runners share a state (whole VM) between runs
+      # Also, they might have running or stopped containers,
+      # which are not cleaned up by `docker system prune`
+      - name: Reset docker state and cleanup artifacts 🗑️
+        if: inputs.platform != 'x86_64'
         run: |
           pip install --upgrade pip
           pip install --upgrade -r requirements-dev.txt
         shell: bash
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Load parent built image to Docker 📥
+        if: inputs.parent-image != ''
+        uses: ./.github/actions/load-image
         with:
-          driver-opts: |
-            network=host
-      -
-        name: Download artifact 📥
-        if: ${{ inputs.parentImage != '' }}
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ inputs.parentImage }}
-          path: /tmp/
+          image: ${{ inputs.parent-image }}
+          platform: ${{ inputs.platform }}
+          variant: ${{ inputs.parent-variant }}
 
-      - name: Load parent built image to Docker 🐳
-        if: ${{ inputs.parentImage != '' }}
-        run: |
-          docker load --input /tmp/${{ inputs.parentImage }}.tar
+      - name: Pull base ubuntu image 📥
+        if: inputs.parent-image == ''
+        run: docker pull ubuntu:24.04
+        shell: bash
 
-      - name: Login to Docker Hub 🔐
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          logout: true
-
-      - name: Login to Containers 🫙
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
-        with:
-          registry: containers.renci.org
-          username: ${{ secrets.CONTAINERHUB_USERNAME }}
-          password: ${{ secrets.CONTAINERHUB_TOKEN }}
-          logout: true
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          # list of Docker images to use as base name for tags
-          images: |
-            ${{ env.OWNER }}/${{ inputs.image }}
-            containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
-          # generate Docker tags based on the following events/attributes
-          tags: |
-            type=ref,event=branch
-            type=sha
-
-      - name: Build Containers 🛠️
-        uses: docker/build-push-action@v4
-        with:
-          context: ${{ inputs.image }}/
-          push: false
-          build-args: |
-            NB_GID=0
-            ROOT_CONTAINER=nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
-          # Push to renci-registry and dockerhub here.
-          tags: |
-            ${{ steps.meta.outputs.tags }}
-            ${{ env.OWNER }}/${{ inputs.image }}:latest
-            ${{ env.OWNER }}/${{ inputs.image }}:cuda
-          outputs: type=docker, dest=/tmp/${{ inputs.image }}.tar
-          cache-from: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }}
-          cache-to: type=registry,ref=${{ env.OWNER }}/${{ inputs.image }}:buildcache-${{ inputs.image }},mode=max
-
-      - name: Load image to docker 
-        run: |
-          docker load --input /tmp/${{ inputs.image }}.tar
-
-      # - name: Run Test Docker Image
-      #   run: |
-      #     docker run --force-rm --rm ${{ env.OWNER }}/${{ inputs.image }}:latest
+      - name: Build image 🛠
+        run: docker build --rm --force-rm --tag ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ inputs.image }} images/${{ inputs.image }}/${{ inputs.variant != 'default' && inputs.variant || '.' }}/ --build-arg REGISTRY=${{ env.REGISTRY }} --build-arg OWNER=${{ env.OWNER }}
+        env:
+          DOCKER_BUILDKIT: 1
+          # Full logs for CI build
+          BUILDKIT_PROGRESS: plain
+        shell: bash
 
       - name: Run tests ✅
-        run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --owner ${{ env.OWNER }}
+        run: python3 -m tests.run_tests --short-image-name ${{ inputs.image }} --registry ${{ env.REGISTRY }} --owner ${{ env.OWNER }}
         shell: bash
 
       # We do not want to push "latest" tag unless 
@@ -146,31 +108,39 @@ jobs:
       - name: Remove latest tag if Develop Branch
         if: ${{  github.ref != 'refs/heads/main'  }}
         run: |
-          docker rmi ${{ env.OWNER }}/${{ inputs.image }}:latest
-
-      - name: Upload artifact 📤
-        uses: actions/upload-artifact@v3
+          python3 -m tagging.write_tags_file --short-image-name ${{ inputs.image }} --tags-dir /tmp/jupyter/tags/ --registry ${{ env.REGISTRY }} --owner ${{ env.OWNER }} --variant ${{ inputs.variant }}
+        shell: bash
+      - name: Upload tags file 💾
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.image }}
-          path: /tmp/${{ inputs.image }}.tar
+          name: ${{ inputs.image }}-${{ inputs.platform }}-${{ inputs.variant }}-tags
+          path: /tmp/jupyter/tags/${{ inputs.platform }}-${{ inputs.variant }}-${{ inputs.image }}.txt
+          retention-days: 3
 
-      - name: Push to Docker 🛠️
+      - name: Write manifest and build history file 🏷
+        run: python3 -m tagging.write_manifest --short-image-name ${{ inputs.image }} --hist-lines-dir /tmp/jupyter/hist_lines/ --manifests-dir /tmp/jupyter/manifests/ --registry ${{ env.REGISTRY }} --owner ${{ env.OWNER }} --variant ${{ inputs.variant }}
+        shell: bash
+      - name: Upload manifest file 💾
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.image }}-${{ inputs.platform }}-${{ inputs.variant }}-manifest
+          path: /tmp/jupyter/manifests/${{ inputs.platform }}-${{ inputs.variant }}-${{ inputs.image }}-*.md
+          retention-days: 3
+      - name: Upload build history line 💾
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.image }}-${{ inputs.platform }}-${{ inputs.variant }}-history_line
+          path: /tmp/jupyter/hist_lines/${{ inputs.platform }}-${{ inputs.variant }}-${{ inputs.image }}-*.txt
+          retention-days: 3
+
+      - name: Save image as a tar for later use 💾
         run: |
-          docker push --all-tags ${{ env.OWNER }}/${{ inputs.image }}
-
-      # Because Containers often fails, we keep going and display a message.
-      - name: Push to Containers 🫙
-        id: containers
-        run: |
-          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
-        continue-on-error: true
-
-      # Sometimes containers.recnci.org fails so we try again.
-      - name: If Containers Failed 
-        if: ${{ steps.containers.conclusion == 'failure' }}
-        run: |
-          echo "Last push failed retrying "
-          docker push --all-tags containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
-          echo "Completed!"
-        continue-on-error: true
-
+          mkdir -p /tmp/jupyter/images/
+          docker save ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ inputs.image }} | zstd > /tmp/jupyter/images/${{ inputs.image }}-${{ inputs.platform }}-${{ inputs.variant }}.tar.zst
+        shell: bash
+      - name: Upload image as artifact 💾
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.image }}-${{ inputs.platform }}-${{ inputs.variant }}
+          path: /tmp/jupyter/images/${{ inputs.image }}-${{ inputs.platform }}-${{ inputs.variant }}.tar.zst
+          retention-days: 3
