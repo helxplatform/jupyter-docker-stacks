@@ -79,8 +79,9 @@ RUN if grep -q "${NB_UID}" /etc/passwd; then \
 RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers && \
     sed -i.bak -e 's/^%sudo/#%sudo/' /etc/sudoers && \
-    # useradd -l -m -s /bin/bash -N -u "${NB_UID}" "${NB_USER}" -g "${NB_GID}" && \
-    useradd --no-log-init --create-home --shell /bin/bash --uid "${NB_UID}" --no-user-group "${NB_USER}" && \
+    useradd -l -m -s /bin/bash -N -u "${NB_UID}" "${NB_USER}" -g "${NB_GID}" && \
+    # Original 
+    # useradd --no-log-init --create-home --shell /bin/bash --uid "${NB_UID}" --no-user-group "${NB_USER}" && \
     mkdir -p "${CONDA_DIR}" && \
     chown "${NB_USER}:${NB_GID}" "${CONDA_DIR}" && \
     chmod g+w /etc/passwd && \
