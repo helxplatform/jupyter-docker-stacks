@@ -90,8 +90,7 @@ jobs:
           password: ${{ secrets.CONTAINERHUB_TOKEN }}
           logout: true
 
-      - name: Docker meta Prod
-        if: ${{  github.ref != 'refs/heads/main'  }} 
+      - name: Docker meta Prod 
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -105,24 +104,6 @@ jobs:
             type=ref,event=branch
             type=sha
             type=raw,value=cuda
-            type=raw,value=latest
-
-      - name: Docker meta Dev
-        if: ${{  github.ref != 'refs/heads/develop'  }} 
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          # list of Docker images to use as base name for tags
-          images: |
-            ${{ env.OWNER }}/${{ inputs.image }}
-            containers.renci.org/${{ env.OWNER }}/jupyter/docker-stacks/${{ inputs.image }}
-          # generate Docker tags based on the following events/attributes
-          # using the type=raw,value="" syntax allows for custom tags.
-          tags: |
-            type=ref,event=branch
-            type=sha
-            type=raw,value=cuda
-
 
       - name: Create Temp Dir 
         run: |
