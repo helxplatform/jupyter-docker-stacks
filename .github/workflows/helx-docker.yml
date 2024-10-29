@@ -121,28 +121,28 @@ jobs:
       CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
     needs: [minimal]
 
-  pyspark:
-    uses: ./.github/workflows/helx-build-test-upload.yml
-    with:
-      parentImage: scipy-notebook
-      image: pyspark-notebook
-      runsOn: ubuntu-latest
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
-      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
-    needs: [scipy]
+  # pyspark:
+  #   uses: ./.github/workflows/helx-build-test-upload.yml
+  #   with:
+  #     parentImage: scipy-notebook
+  #     image: pyspark-notebook
+  #     runsOn: ubuntu-latest
+  #   secrets:
+  #     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  #     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+  #     CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
+  #   needs: [scipy]
 
-  all-spark:
-    uses: ./.github/workflows/helx-build-test-upload.yml
-    with:
-      parentImage: pyspark-notebook
-      image: all-spark-notebook
-      runsOn: ubuntu-latest
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
-      CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
-    needs: [pyspark]
+  # all-spark:
+  #   uses: ./.github/workflows/helx-build-test-upload.yml
+  #   with:
+  #     parentImage: pyspark-notebook
+  #     image: all-spark-notebook
+  #     runsOn: ubuntu-latest
+  #   secrets:
+  #     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  #     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     CONTAINERHUB_USERNAME: ${{ secrets.CONTAINERHUB_USERNAME }}
+  #     CONTAINERHUB_TOKEN: ${{ secrets.CONTAINERHUB_TOKEN }}
+  #   needs: [pyspark]
