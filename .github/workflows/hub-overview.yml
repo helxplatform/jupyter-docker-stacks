@@ -4,22 +4,22 @@ env:
   OWNER: ${{ github.repository_owner }}
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/hub-overview.yml"
+  workflow_call:
+    # branches:
+    #   - main
+    # paths:
+    #   - ".github/workflows/hub-overview.yml"
 
-      # - "all-spark-notebook/README.md"
-      - "base-notebook/README.md"
-      - "datascience-notebook/README.md"
-      # - "docker-stacks-foundation/README.md"
-      - "julia-notebook/README.md"
-      - "minimal-notebook/README.md"
-      # - "pyspark-notebook/README.md"
-      # - "r-notebook/README.md"
-      - "scipy-notebook/README.md"
-      # - "tensorflow-notebook/README.md"
+    #   # - "all-spark-notebook/README.md"
+    #   - "base-notebook/README.md"
+    #   - "datascience-notebook/README.md"
+    #   # - "docker-stacks-foundation/README.md"
+    #   - "julia-notebook/README.md"
+    #   - "minimal-notebook/README.md"
+    #   # - "pyspark-notebook/README.md"
+    #   # - "r-notebook/README.md"
+    #   - "scipy-notebook/README.md"
+    #   # - "tensorflow-notebook/README.md"
 
 jobs:
   update-dockerhub-overview:
@@ -65,3 +65,4 @@ jobs:
           #   description: "Python and Spark Jupyter Notebook Stack from https://github.com/jupyter/docker-stacks"
           # - image: all-spark-notebook
           #   description: "Python, Scala, R and Spark Jupyter Notebook Stack from https://github.com/jupyter/docker-stacks"
+

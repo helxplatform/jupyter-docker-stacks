@@ -3,7 +3,7 @@
 
 # BE CAREFUL when using Docker engine <1.10 because running a container with
 # `--rm` option while mounting a docker volume may wipe out the volume.
-# See issue: https://github.com/docker/docker/issues/17907
+# See issue: https://github.com/moby/moby/issues/17907
 
 # Use letsencrypt production server by default to get a real cert.
 # Use CERT_SERVER=--staging to hit the staging server (not a real cert).
@@ -52,8 +52,8 @@ letsencrypt-notebook: DOCKER_ARGS:=-e USE_HTTPS=yes \
 	-e PASSWORD=$(PASSWORD) \
 	-v $(SECRETS_VOLUME):/etc/letsencrypt
 letsencrypt-notebook: ARGS:=\
-	--NotebookApp.certfile=/etc/letsencrypt/fullchain.pem \
-	--NotebookApp.keyfile=/etc/letsencrypt/privkey.pem
+	--ServerApp.certfile=/etc/letsencrypt/fullchain.pem \
+	--ServerApp.keyfile=/etc/letsencrypt/privkey.pem
 letsencrypt-notebook: check
 	@test -n "$(PASSWORD)" || \
 		(echo "ERROR: PASSWORD not defined or blank"; exit 1)
