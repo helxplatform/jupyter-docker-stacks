@@ -36,7 +36,7 @@ help:
 
 
 build/%: DOCKER_BUILD_ARGS?=
-build/%: ROOT_IMAGE?=ubuntu:24.04
+build/%: ROOT_IMAGE?=ubuntu:oracular
 build/%: ## build the latest image for a stack using the system's architecture
 	docker build $(DOCKER_BUILD_ARGS) --rm --force-rm --tag "$(REGISTRY)/$(OWNER)/$(notdir $@):latest" "./images/$(notdir $@)" --build-arg REGISTRY="$(REGISTRY)" --build-arg OWNER="$(OWNER)" --build-arg ROOT_IMAGE="$(ROOT_IMAGE)"
 	@echo -n "Built image size: "
