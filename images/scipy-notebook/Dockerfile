@@ -47,7 +47,7 @@ RUN mamba install --yes \
     'openpyxl' \
     'pandas' \
     'patsy' \
-    'protobuf' \
+    'protobuf>=5.29.5' \
     'pytables' \
     'scikit-image' \
     'scikit-learn' \

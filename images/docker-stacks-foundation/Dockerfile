@@ -3,7 +3,7 @@
 
 # Ubuntu 24.04 (noble)
 # https://hub.docker.com/_/ubuntu/tags?page=1&name=noble
-ARG ROOT_IMAGE=ubuntu:24.04
+ARG ROOT_IMAGE=ubuntu:oracular
 
 FROM $ROOT_IMAGE
 
